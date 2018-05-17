@@ -105,7 +105,9 @@ export class BootScene extends Phaser.Scene {
     this.sys.displayList.add(halfling);
     this.sys.updateList.add(halfling);
 
-    const map = this.make.tilemap({ tileWidth: 64, tileHeight: 64, width: 4, height: 4 });
+    const map = this.make.tilemap({
+      tileWidth: this.terrainService.tileWidth, tileHeight: this.terrainService.tileHeight, width: 4, height: 4
+    });
     const tileset = map.addTilesetImage('terrain');
     const layer = map.createBlankDynamicLayer('Layer 1', tileset, undefined, undefined, undefined, undefined);
     layer.x = 100;
@@ -126,19 +128,19 @@ export class BootScene extends Phaser.Scene {
     map.putTileAt(this.terrainService.getTileIndex('dungeon', 'floor'), 2, 2);
     map.putTileAt(this.terrainService.getTileIndex('dungeon', 'wallTop'), 3, 2);
 
-    map.putTileAt(this.terrainService.getTileIndex('dungeon', 'wallTop'), 0, 3);
-    map.putTileAt(this.terrainService.getTileIndex('dungeon', 'wallTop'), 1, 3);
-    map.putTileAt(this.terrainService.getTileIndex('dungeon', 'wallTop'), 2, 3);
-    map.putTileAt(this.terrainService.getTileIndex('dungeon', 'wallTop'), 3, 3);
+    map.putTileAt(this.terrainService.getTileIndex('dungeon', 'wallBottom'), 0, 3);
+    map.putTileAt(this.terrainService.getTileIndex('dungeon', 'wallBottom'), 1, 3);
+    map.putTileAt(this.terrainService.getTileIndex('dungeon', 'wallBottom'), 2, 3);
+    map.putTileAt(this.terrainService.getTileIndex('dungeon', 'wallBottom'), 3, 3);
 
     human = this.characterService.generate('human', {}, this);
-    human.setPosition(196, 380);
+    human.setPosition(172, 372);
     human.play('idle');
     this.sys.displayList.add(human);
     this.sys.updateList.add(human);
 
     human = this.characterService.generate('human', {}, this);
-    human.setPosition(196, 444);
+    human.setPosition(172, 420);
     human.play('idle');
     this.sys.displayList.add(human);
     this.sys.updateList.add(human);
