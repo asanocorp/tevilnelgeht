@@ -4,19 +4,17 @@ export function generateCreature(creatureKey: string, texturesIndex: any, animat
   const texturesKeyMap = {};
   const textures = Object.keys(texturesIndex).map(baseKey => {
     const key = keyPrefix + baseKey;
-    const texture = { ...texturesIndex[baseKey], key };
     texturesKeyMap[baseKey] = key;
-    return texture;
+    return { ...texturesIndex[baseKey], key };
   });
 
   const animationsKeyMap = {};
   const animations = Object.keys(animationsIndex).map(baseKey => {
     const key = keyPrefix + baseKey;
+    animationsKeyMap[baseKey] = key;
     const config = animationsIndex[baseKey];
     const frames = config.frames.map(frame => ({ key: keyPrefix + frame.key }));
-    const animation = { ...config, key, frames };
-    animationsKeyMap[baseKey] = key;
-    return animation;
+    return { ...config, key, frames };
   });
 
   return {

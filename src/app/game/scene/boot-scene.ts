@@ -2,17 +2,26 @@ import { Injectable } from '@angular/core';
 
 import { CharacterService } from '../character/character.service';
 import { CreatureService } from '../creature/creature.service';
+import { TerrainService } from '../terrain/terrain.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class BootScene extends Phaser.Scene {
-  public constructor(private creatureService: CreatureService, private characterService: CharacterService) {
+  public constructor(
+    private creatureService: CreatureService,
+    private characterService: CharacterService,
+    private terrainService: TerrainService
+  ) {
     super({ key: 'Boot' });
   }
 
   public preload(): void {
     this.creatureService.loadBaseRenderables(this);
+    this.terrainService.loadTerrainTileset(this);
+
+    this.textures.generate('colorBar', { data: ['0123456789ABCDEF'], pixelWidth: 16, pixelHeight: 16 });
+    this.add.image(300, 32, 'colorBar');
   }
 
   public create(): void {
@@ -95,5 +104,43 @@ export class BootScene extends Phaser.Scene {
     halfling.play('walkRight');
     this.sys.displayList.add(halfling);
     this.sys.updateList.add(halfling);
+
+    const map = this.make.tilemap({ tileWidth: 64, tileHeight: 64, width: 4, height: 4 });
+    const tileset = map.addTilesetImage('terrain');
+    const layer = map.createBlankDynamicLayer('Layer 1', tileset, undefined, undefined, undefined, undefined);
+    layer.x = 100;
+    layer.y = 300;
+
+    map.putTileAt(this.terrainService.getTileIndex('dungeon', 'wallTop'), 0, 0);
+    map.putTileAt(this.terrainService.getTileIndex('dungeon', 'wallBottom'), 1, 0);
+    map.putTileAt(this.terrainService.getTileIndex('dungeon', 'wallBottom'), 2, 0);
+    map.putTileAt(this.terrainService.getTileIndex('dungeon', 'wallTop'), 3, 0);
+
+    map.putTileAt(this.terrainService.getTileIndex('dungeon', 'wallTop'), 0, 1);
+    map.putTileAt(this.terrainService.getTileIndex('dungeon', 'floor'), 1, 1);
+    map.putTileAt(this.terrainService.getTileIndex('dungeon', 'floor'), 2, 1);
+    map.putTileAt(this.terrainService.getTileIndex('dungeon', 'wallTop'), 3, 1);
+
+    map.putTileAt(this.terrainService.getTileIndex('dungeon', 'wallTop'), 0, 2);
+    map.putTileAt(this.terrainService.getTileIndex('dungeon', 'floor'), 1, 2);
+    map.putTileAt(this.terrainService.getTileIndex('dungeon', 'floor'), 2, 2);
+    map.putTileAt(this.terrainService.getTileIndex('dungeon', 'wallTop'), 3, 2);
+
+    map.putTileAt(this.terrainService.getTileIndex('dungeon', 'wallTop'), 0, 3);
+    map.putTileAt(this.terrainService.getTileIndex('dungeon', 'wallTop'), 1, 3);
+    map.putTileAt(this.terrainService.getTileIndex('dungeon', 'wallTop'), 2, 3);
+    map.putTileAt(this.terrainService.getTileIndex('dungeon', 'wallTop'), 3, 3);
+
+    human = this.characterService.generate('human', {}, this);
+    human.setPosition(196, 380);
+    human.play('idle');
+    this.sys.displayList.add(human);
+    this.sys.updateList.add(human);
+
+    human = this.characterService.generate('human', {}, this);
+    human.setPosition(196, 444);
+    human.play('idle');
+    this.sys.displayList.add(human);
+    this.sys.updateList.add(human);
   }
 }

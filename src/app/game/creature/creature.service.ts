@@ -9,9 +9,9 @@ import { human } from './human';
   providedIn: 'root'
 })
 export class CreatureService {
-  private pixelWidth = 2;
+  private pixelWidth = 3;
 
-  private pixelHeight = 2;
+  private pixelHeight = 3;
 
   private creaturesIndex = { elf, dwarf, halfling, human };
 

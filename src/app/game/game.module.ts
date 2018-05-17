@@ -4,11 +4,12 @@ import { CharacterModule } from './character/character.module';
 import { ClassModule } from './class/class.module';
 import { CreatureModule } from './creature/creature.module';
 import { SceneModule } from './scene/scene.module';
+import { TerrainModule } from './terrain/terrain.module';
 
 /**
  * Game module.
  */
 @NgModule({
-  imports: [ClassModule, CreatureModule, CharacterModule, SceneModule],
+  imports: [ClassModule, CreatureModule, CharacterModule, SceneModule, TerrainModule],
 })
 export class GameModule { }
