@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
 
-import { CreatureService } from '../character/creature/creature.service';
+import { CharacterService } from '../character/character.service';
+import { CreatureService } from '../creature/creature.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class BootScene extends Phaser.Scene {
-  public constructor(private creatureService: CreatureService) {
+  public constructor(private creatureService: CreatureService, private characterService: CharacterService) {
     super({ key: 'Boot' });
   }
 
@@ -15,40 +16,84 @@ export class BootScene extends Phaser.Scene {
   }
 
   public create(): void {
-    const human = this.creatureService.get('human');
-    // this.cameras.main.startFollow(
-      this.add.text(125, 50, 'Human');
-      this.add.sprite(100, 100, human.texturesKeyMap['idle0']).play(human.animationsKeyMap['walkLeft']); // , false
-      this.add.sprite(150, 100, human.texturesKeyMap['idle0']).play(human.animationsKeyMap['idle']); // , false
-      this.add.sprite(200, 100, human.texturesKeyMap['idle0']).play(human.animationsKeyMap['walkRight']); // , false
-    // );
-    console.log(human);
+    this.add.text(125, 50, 'Human');
 
-    const elf = this.creatureService.get('elf');
-    // this.cameras.main.startFollow(
-      this.add.text(325, 50, 'Elf');
-      this.add.sprite(300, 100, elf.texturesKeyMap['idle0']).play(elf.animationsKeyMap['walkLeft']); // , false
-      this.add.sprite(350, 100, elf.texturesKeyMap['idle0']).play(elf.animationsKeyMap['idle']); // , false
-      this.add.sprite(400, 100, elf.texturesKeyMap['idle0']).play(elf.animationsKeyMap['walkRight']); // , false
-    // );
-    console.log(elf);
+    let human = this.characterService.generate('human', {}, this);
+    human.setPosition(100, 100);
+    human.play('walkLeft');
+    this.sys.displayList.add(human);
+    this.sys.updateList.add(human);
 
-    const dwarf = this.creatureService.get('dwarf');
-    // this.cameras.main.startFollow(
-      this.add.text(525, 50, 'Dwarf');
-      this.add.sprite(500, 100, dwarf.texturesKeyMap['idle0']).play(dwarf.animationsKeyMap['walkLeft']); // , false
-      this.add.sprite(550, 100, dwarf.texturesKeyMap['idle0']).play(dwarf.animationsKeyMap['idle']); // , false
-      this.add.sprite(600, 100, dwarf.texturesKeyMap['idle0']).play(dwarf.animationsKeyMap['walkRight']); // , false
-    // );
-    console.log(dwarf);
+    human = this.characterService.generate('human', {}, this);
+    human.setPosition(150, 100);
+    human.play('idle');
+    this.sys.displayList.add(human);
+    this.sys.updateList.add(human);
 
-    const halfling = this.creatureService.get('halfling');
-    // this.cameras.main.startFollow(
-      this.add.text(725, 50, 'Halfling');
-      this.add.sprite(700, 100, halfling.texturesKeyMap['idle0']).play(halfling.animationsKeyMap['walkLeft']); // , false
-      this.add.sprite(750, 100, halfling.texturesKeyMap['idle0']).play(halfling.animationsKeyMap['idle']); // , false
-      this.add.sprite(800, 100, halfling.texturesKeyMap['idle0']).play(halfling.animationsKeyMap['walkRight']); // , false
-    // );
-    console.log(halfling);
+    human = this.characterService.generate('human', {}, this);
+    human.setPosition(200, 100);
+    human.play('walkRight');
+    this.sys.displayList.add(human);
+    this.sys.updateList.add(human);
+
+    this.add.text(325, 50, 'Elf');
+
+    let elf = this.characterService.generate('elf', {}, this);
+    elf.setPosition(300, 100);
+    elf.play('walkLeft');
+    this.sys.displayList.add(elf);
+    this.sys.updateList.add(elf);
+
+    elf = this.characterService.generate('elf', {}, this);
+    elf.setPosition(350, 100);
+    elf.play('idle');
+    this.sys.displayList.add(elf);
+    this.sys.updateList.add(elf);
+
+    elf = this.characterService.generate('elf', {}, this);
+    elf.setPosition(400, 100);
+    elf.play('walkRight');
+    this.sys.displayList.add(elf);
+    this.sys.updateList.add(elf);
+
+    this.add.text(525, 50, 'Dwarf');
+
+    let dwarf = this.characterService.generate('dwarf', {}, this);
+    dwarf.setPosition(500, 100);
+    dwarf.play('walkLeft');
+    this.sys.displayList.add(dwarf);
+    this.sys.updateList.add(dwarf);
+
+    dwarf = this.characterService.generate('dwarf', {}, this);
+    dwarf.setPosition(550, 100);
+    dwarf.play('idle');
+    this.sys.displayList.add(dwarf);
+    this.sys.updateList.add(dwarf);
+
+    dwarf = this.characterService.generate('dwarf', {}, this);
+    dwarf.setPosition(600, 100);
+    dwarf.play('walkRight');
+    this.sys.displayList.add(dwarf);
+    this.sys.updateList.add(dwarf);
+
+    this.add.text(725, 50, 'Halfling');
+
+    let halfling = this.characterService.generate('halfling', {}, this);
+    halfling.setPosition(700, 100);
+    halfling.play('walkLeft');
+    this.sys.displayList.add(halfling);
+    this.sys.updateList.add(halfling);
+
+    halfling = this.characterService.generate('halfling', {}, this);
+    halfling.setPosition(750, 100);
+    halfling.play('idle');
+    this.sys.displayList.add(halfling);
+    this.sys.updateList.add(halfling);
+
+    halfling = this.characterService.generate('halfling', {}, this);
+    halfling.setPosition(800, 100);
+    halfling.play('walkRight');
+    this.sys.displayList.add(halfling);
+    this.sys.updateList.add(halfling);
   }
 }

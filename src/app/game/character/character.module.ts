@@ -1,9 +1,8 @@
 import { NgModule } from '@angular/core';
 
-import { CreatureModule } from './creature/creature.module';
+import { CharacterService } from './character.service';
 
 @NgModule({
-  imports: [CreatureModule],
-  exports: [CreatureModule]
+  providers: [CharacterService]
 })
 export class CharacterModule { }
