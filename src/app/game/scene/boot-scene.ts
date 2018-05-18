@@ -134,7 +134,7 @@ export class BootScene extends Phaser.Scene {
     map.putTileAt(this.terrainService.getTileIndex('dungeon', 'wallBottom'), 3, 3);
 
     human = this.characterService.generate('human', {}, this);
-    human.setPosition(172, 372);
+    human.setPosition(148 + 24, 348 + 24);
     human.play('idle');
     this.sys.displayList.add(human);
     this.sys.updateList.add(human);

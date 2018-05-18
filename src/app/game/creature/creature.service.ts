@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 
+import { CreatureDefinitions } from './creature-definitions';
 import { dwarf } from './dwarf';
 import { elf } from './elf';
 import { halfling } from './halfling';
@@ -9,9 +10,9 @@ import { human } from './human';
   providedIn: 'root'
 })
 export class CreatureService {
-  private readonly pixelWidth = 2;
+  private readonly pixelWidth = CreatureDefinitions.pixelWidth;
 
-  private readonly pixelHeight = 2;
+  private readonly pixelHeight = CreatureDefinitions.pixelHeight;
 
   private creaturesIndex = { elf, dwarf, halfling, human };
 

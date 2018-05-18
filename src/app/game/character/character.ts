@@ -11,6 +11,7 @@ export class Character extends Phaser.GameObjects.PathFollower {
   ) {
     super(scene, path, x, y, creature.defaultTexture);
     this.animationsKeyMap = { ...creature.animationsKeyMap };
+    this.setOrigin(creature.origin.x, creature.origin.y);
   }
 
   public play(key: string, ignoreIfPlaying = false, startFrame = 0): Character {

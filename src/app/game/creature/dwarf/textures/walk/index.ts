@@ -1,11 +1,13 @@
-import { data as frame0Data, sockets as frame0Sockets } from './frame0';
-import { data as frame1Data, sockets as frame1Sockets } from './frame1';
-import { data as frame2Data, sockets as frame2Sockets } from './frame2';
-import { data as frame3Data, sockets as frame3Sockets } from './frame3';
+import { generateCreatureTexture } from '../../../generate-creature-texture';
+import * as rules from '../../rules';
+import * as frame0 from './frame0';
+import * as frame1 from './frame1';
+import * as frame2 from './frame2';
+import * as frame3 from './frame3';
 
 export const walkTextures = {
-  walk0: { data: frame0Data, sockets: frame0Sockets },
-  walk1: { data: frame1Data, sockets: frame1Sockets },
-  walk2: { data: frame2Data, sockets: frame2Sockets },
-  walk3: { data: frame3Data, sockets: frame3Sockets }
+  walk0: generateCreatureTexture(frame0, rules),
+  walk1: generateCreatureTexture(frame1, rules),
+  walk2: generateCreatureTexture(frame2, rules),
+  walk3: generateCreatureTexture(frame3, rules),
 };

@@ -1,4 +1,6 @@
-export function generateCreature(creatureKey: string, texturesIndex: any, animationsIndex: any): any {
+import { CreatureDefinitions } from './creature-definitions';
+
+export function generateCreature(creatureKey: string, texturesIndex: any, animationsIndex: any, rules: any): any {
   const keyPrefix = creatureKey + '-';
 
   const texturesKeyMap = {};
@@ -18,10 +20,12 @@ export function generateCreature(creatureKey: string, texturesIndex: any, animat
   });
 
   return {
+    origin: { ...CreatureDefinitions.creatureTypes[rules.creatureType].textureOrigin },
     defaultTexture: textures[0].key,
     textures,
     texturesKeyMap,
     animations,
-    animationsKeyMap
+    animationsKeyMap,
+    rules: { ...rules }
   };
 }
