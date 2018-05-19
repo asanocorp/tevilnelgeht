@@ -8,7 +8,21 @@ import { SceneService } from './game/scene/scene.service';
  */
 @Component({
   selector: 'app-root',
-  template: `<phaser-component [gameConfig]="gameConfig" (gameReady)="onGameReady($event)"></phaser-component>`
+  template: `
+    <div id="splash" class="splash"><div id="loadStatus"></div></div>
+    <phaser-component [gameConfig]="gameConfig" (gameReady)="onGameReady($event)"></phaser-component>
+  `,
+  styles: [
+    `#loadStatus {
+      position: relative;
+      top: 128px;
+      text-align: center;
+      color: #eee;
+      font-family: Verdana, sans-serif;
+      font-size: 14px;
+      font-variant: small-caps;
+    }`
+  ]
 })
 export class AppComponent {
   /**

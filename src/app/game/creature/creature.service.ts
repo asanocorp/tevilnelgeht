@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
+import GenerateTexture from 'phaser/src/create/GenerateTexture';
 
+import { TextureService } from '../texture/texture.service';
 import { CreatureDefinitions } from './creature-definitions';
 import { dwarf } from './dwarf';
 import { elf } from './elf';
@@ -16,7 +18,7 @@ export class CreatureService {
 
   private creaturesIndex = { elf, dwarf, halfling, human };
 
-  public constructor() { }
+  public constructor(private textureService: TextureService) { }
 
   public get(creatureKey: string): any {
     return this.creaturesIndex[creatureKey];
@@ -32,7 +34,10 @@ export class CreatureService {
 
   private loadTextures(scene: Phaser.Scene, textures: any[]): void {
     textures.forEach(
-      texture => scene.textures.generate(texture.key, { data: texture.data, pixelWidth: this.pixelWidth, pixelHeight: this.pixelHeight })
+      texture => scene.textures.addCanvas(
+        texture.key,
+        this.textureService.generate(texture.data, this.pixelWidth, this.pixelHeight, texture.shadowColor)
+      )
     );
   }
 

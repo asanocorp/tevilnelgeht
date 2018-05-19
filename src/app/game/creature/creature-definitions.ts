@@ -8,7 +8,8 @@ export class CreatureDefinitions {
   public static readonly creatureTypes = {
     [CreatureType.Humanoid]: {
       textureMargins: { top: 10, right: 10, bottom: 0, left: 10 },
-      textureOrigin: { x: 0.5, y: 1 }
+      textureOrigin: { x: 0.5, y: 1 },
+      shadowColor: 'black'
     }
   };
 

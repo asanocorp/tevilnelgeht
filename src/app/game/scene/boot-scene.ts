@@ -19,12 +19,14 @@ export class BootScene extends Phaser.Scene {
   public preload(): void {
     this.creatureService.loadBaseRenderables(this);
     this.terrainService.loadTerrainTileset(this);
-
-    this.textures.generate('colorBar', { data: ['0123456789ABCDEF'], pixelWidth: 16, pixelHeight: 16 });
-    this.add.image(300, 32, 'colorBar');
   }
 
   public create(): void {
+    this.splashFadeOut();
+
+    this.textures.generate('colorBar', { data: ['0123456789ABCDEF'], pixelWidth: 16, pixelHeight: 16 });
+    this.add.image(300, 32, 'colorBar');
+
     this.add.text(125, 50, 'Human');
 
     let human = this.characterService.generate('human', {}, this);
@@ -144,5 +146,37 @@ export class BootScene extends Phaser.Scene {
     human.play('idle');
     this.sys.displayList.add(human);
     this.sys.updateList.add(human);
+  }
+
+  private splashFadeOut(): void {
+    const duration = 1000;
+    const beginOpacity = 0.9;
+    const endOpacity = 0;
+
+    const splashFadeOutPromise = new Promise(function (resolve) {
+      let splashFadeOutStartTime;
+
+      function stepSplashFadeOut(time) {
+        if (!splashFadeOutStartTime) {
+          splashFadeOutStartTime = time;
+        }
+
+        const opacity = beginOpacity - ((time - splashFadeOutStartTime) / duration);
+
+        document.getElementById('splash').style.opacity = Math.max(opacity, endOpacity).toString();
+
+        if (opacity > endOpacity) {
+          window.requestAnimationFrame(stepSplashFadeOut);
+        } else {
+          resolve();
+        }
+      }
+
+      window.requestAnimationFrame(stepSplashFadeOut);
+    });
+
+    splashFadeOutPromise.then(function () {
+      document.getElementById('splash').outerHTML = '';
+    });
   }
 }

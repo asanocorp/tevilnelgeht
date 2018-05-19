@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 
+import { TextureService } from '../texture/texture.service';
 import { dungeon } from './dungeon';
 import { palette } from './palette';
 import { TerrainDefinitions } from './terrain-definitions';
@@ -24,13 +25,17 @@ export class TerrainService {
 
   private tilesetIndex = {};
 
-  public constructor() { }
+  public constructor(private textureService: TextureService) { }
 
   public getTileIndex(group: string, key: string): number {
     return this.tilesetIndex[group][key];
   }
 
   public loadTerrainTileset(scene: Phaser.Scene): void {
+    scene.textures.addCanvas('terrain', this.textureService.generate(this.buildTilesetData(), this.pixelWidth, this.pixelHeight));
+  }
+
+  private buildTilesetData(): string[] {
     const tilesetData = ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''];
     let tileIndex = 0;
 
@@ -45,6 +50,6 @@ export class TerrainService {
       });
     });
 
-    scene.textures.generate('terrain', { data: tilesetData, pixelWidth: this.pixelWidth, pixelHeight: this.pixelHeight });
+    return tilesetData;
   }
 }
