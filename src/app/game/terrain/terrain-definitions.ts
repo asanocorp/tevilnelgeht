@@ -6,4 +6,6 @@ export class TerrainDefinitions {
   public static readonly tileWidthInPixels = 16;
 
   public static readonly tileHeightInPixels = 16;
+
+  public static readonly tilesetImageKey = 'terrain';
 }

@@ -21,6 +21,8 @@ export class TerrainService {
 
   public readonly tileHeight = this.pixelHeight * this.tileHeightInPixels;
 
+  public readonly tilesetImageKey = TerrainDefinitions.tilesetImageKey;
+
   private terrainIndex = { dungeon, palette };
 
   private tilesetIndex = {};
