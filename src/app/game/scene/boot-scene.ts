@@ -20,8 +20,6 @@ export class BootScene extends Phaser.Scene {
   public create(): void {
     this.splashFadeOut();
 
-
-
     this.time.delayedCall(
       1500,
       () => {

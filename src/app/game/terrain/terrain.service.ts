@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 
 import { TextureService } from '../texture/texture.service';
 import { dungeon } from './dungeon';
-import { palette } from './palette';
 import { TerrainDefinitions } from './terrain-definitions';
 
 @Injectable({
@@ -23,14 +22,27 @@ export class TerrainService {
 
   public readonly tilesetImageKey = TerrainDefinitions.tilesetImageKey;
 
-  private terrainIndex = { dungeon, palette };
+  public readonly TerrainCategory = TerrainDefinitions.TerrainCategory;
+
+  public readonly TerrainType = TerrainDefinitions.TerrainType;
+
+  public readonly TerrainSubType = TerrainDefinitions.TerrainSubType;
+
+  private terrainIndex = {
+    [TerrainDefinitions.TerrainCategory.Dungeon]: dungeon
+  };
 
   private tilesetIndex = {};
 
   public constructor(private textureService: TextureService) { }
 
   public getTileIndex(group: string, key: string): number {
-    return this.tilesetIndex[group][key];
+    const index = this.tilesetIndex[group][key];
+    return index !== undefined ? index : this.tilesetIndex[group][this.terrainIndex[group].defaultTexturesIndex[key]];
+  }
+
+  public getTerrainRules(group: string, key: string): any {
+    return { ...this.terrainIndex[group].rules[key] };
   }
 
   public loadTerrainTileset(scene: Phaser.Scene): void {

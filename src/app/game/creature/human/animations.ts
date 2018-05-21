@@ -8,23 +8,23 @@ export const animations = {
     repeat: -1
   },
   walkRight: {
-    frameRate: 4,
+    frameRate: 3,
     frames: [
-      { key: 'walk0' },
       { key: 'walk1' },
       { key: 'walk2' },
-      { key: 'walk3' }
+      { key: 'walk3' },
+      // { key: 'walk0' }
     ],
-    repeat: -1
+    repeat: 0
   },
   walkLeft: {
-    frameRate: 4,
+    frameRate: 3,
     frames: [
-      { key: 'walk0' },
       { key: 'walk3' },
       { key: 'walk2' },
-      { key: 'walk1' }
+      { key: 'walk1' },
+      // { key: 'walk0' }
     ],
-    repeat: -1
+    repeat: 0
   }
 };

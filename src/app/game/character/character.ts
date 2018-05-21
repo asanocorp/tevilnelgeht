@@ -14,7 +14,15 @@ export class Character extends Phaser.GameObjects.PathFollower {
     this.setOrigin(creature.origin.x, creature.origin.y);
   }
 
+  public act(cost: (c) => void): Promise<void> {
+    return new Promise((unlock: () => void) => this.emit('turn', this, cost, unlock));
+  }
+
   public play(key: string, ignoreIfPlaying = false, startFrame = 0): Character {
     return super.play(this.animationsKeyMap[key], ignoreIfPlaying, startFrame) as Character;
+  }
+
+  public update() {
+    this.setDepth(this.y);
   }
 }
