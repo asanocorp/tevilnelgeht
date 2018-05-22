@@ -9,7 +9,7 @@ export function generateCreatureTexture(frame: any, rules: any): any {
   const sockets = {};
   const shadowColor = frame.shadowColor || creatureDefaults.shadowColor;
 
-  const margins = { top: 0, left: 0, bottom: 0, right: 0 }; // frame.textureMargins || creatureDefaults.textureMargins;
+  const margins = { top: 1, left: 1, bottom: 0, right: 1 }; // frame.textureMargins || creatureDefaults.textureMargins;
 
   for (let y = 0; y < margins.top; ++y) {
     data.push('.'.repeat(frame.data[0].length + margins.left + margins.right));
