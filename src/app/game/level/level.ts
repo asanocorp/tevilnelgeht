@@ -1,8 +1,5 @@
 import { Character } from '../character/character';
-import { CharacterActionAnimationManager } from '../character/character-action-animation-manager';
-import { CharacterActionManager, CharacterActionType } from '../character/character-action-manager';
 import { CharacterManager } from '../character/character-manager';
-import { CharacterMoveActionManager } from '../character/character-move-action-manager';
 import { TerrainService } from '../terrain/terrain.service';
 import { PathfinderManager } from './pathfinder-manager';
 import { PathGraphics } from './path-graphics';
@@ -21,12 +18,6 @@ export class Level extends Phaser.Scene {
 
   private characterManager = new CharacterManager();
 
-  private characterActionManager: CharacterActionManager;
-
-  private characterActionAnimationManager: CharacterActionAnimationManager;
-
-  private playerCharacterMoveActionManager: CharacterMoveActionManager;
-
   private isPlayerTurn = false;
 
   private playerCharacterPathCache: { [key: string]: Phaser.Math.Vector2[] } = {};
@@ -44,9 +35,7 @@ export class Level extends Phaser.Scene {
   public create(): void {
     this.generate();
 
-    this.characterActionAnimationManager = new CharacterActionAnimationManager(this.tilemap);
-    this.characterActionManager = new CharacterActionManager(this.characterActionAnimationManager);
-    this.playerCharacterMoveActionManager = new CharacterMoveActionManager(this.characterActionManager);
+    this.characterManager.getCharacterActionAnimationManager().setTileDimensions(this.tilemap.tileWidth, this.tilemap.tileHeight);
 
     this.playerCharacterPathGraphics = new PathGraphics(this);
   }
@@ -121,7 +110,7 @@ export class Level extends Phaser.Scene {
       this.playerCharacterPathCache = {};
     };
 
-    this.characterActionAnimationManager.run(() => this.startPlayerTurn());
+    this.characterManager.getCharacterActionAnimationManager().run(() => this.startPlayerTurn());
   }
 
   private startPlayerTurn(): void {
@@ -129,19 +118,21 @@ export class Level extends Phaser.Scene {
 
     this.playerCharacterPathGraphics.clear();
 
-    if (this.playerCharacterMoveActionManager.hasPending()) {
-      const actions = this.playerCharacterMoveActionManager.getPending();
+    const moveActionManager = this.characterManager.getCharacterMoveActionManager(this.characterManager.getPlayerCharacterData());
+
+    if (moveActionManager.hasPending()) {
+      const actions = moveActionManager.getPending();
 
       const path = actions.map(action => action.payload.from);
       path.push(actions[actions.length - 1].payload.to);
 
       this.playerCharacterPathGraphics.drawPath(path);
 
-      if (this.playerCharacterMoveActionManager.processNext(position => this.pathfinderManager.allowsMove(position))) {
+      if (moveActionManager.processNext(position => this.pathfinderManager.allowsMove(position))) {
         this.endPlayerTurn();
         return;
       } else {
-        this.playerCharacterMoveActionManager.clear();
+        moveActionManager.clear();
       }
     }
 
@@ -149,7 +140,9 @@ export class Level extends Phaser.Scene {
   }
 
   private tilemapPointerDownListener(pointer): void {
-    if (!this.isPlayerTurn || this.playerCharacterMoveActionManager.hasPending()) {
+    const moveActionManager = this.characterManager.getCharacterMoveActionManager(this.characterManager.getPlayerCharacterData());
+
+    if (!this.isPlayerTurn || moveActionManager.hasPending()) {
       return;
     }
 
@@ -157,16 +150,18 @@ export class Level extends Phaser.Scene {
     const path = this.getPlayerPath(tile);
 
     if (path.length > 1) {
-      this.playerCharacterMoveActionManager.add(this.characterManager.getPlayerCharacterData(), path);
+      moveActionManager.add(this.characterManager.getPlayerCharacterData(), path);
 
-      if (this.playerCharacterMoveActionManager.processNext(position => this.pathfinderManager.allowsMove(position))) {
+      if (moveActionManager.processNext(position => this.pathfinderManager.allowsMove(position))) {
         this.endPlayerTurn();
       }
     }
   }
 
   private tilemapPointerMoveListener(pointer): void {
-    if (!this.isPlayerTurn || this.playerCharacterMoveActionManager.hasPending()) {
+    const moveActionManager = this.characterManager.getCharacterMoveActionManager(this.characterManager.getPlayerCharacterData());
+
+    if (!this.isPlayerTurn || moveActionManager.hasPending()) {
       return;
     }
 

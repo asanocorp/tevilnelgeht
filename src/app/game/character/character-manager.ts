@@ -1,4 +1,7 @@
 import { Character } from './character';
+import { CharacterActionAnimationManager } from './character-action-animation-manager';
+import { CharacterActionManager } from './character-action-manager';
+import { CharacterMoveActionManager } from './character-move-action-manager';
 
 export interface CharacterData {
   sprite: Character;
@@ -14,6 +17,12 @@ export class CharacterManager {
   private nonPlayerCharacterAttachments: CharacterData[] = [];
 
   private playerCharacterAttachment: CharacterData;
+
+  private characterActionAnimationManager = new CharacterActionAnimationManager();
+
+  private characterActionManager = new CharacterActionManager(this.characterActionAnimationManager);
+
+  private characterMoveActionManagerMap = new Map<CharacterData, CharacterMoveActionManager>();
 
   public attachPlayerCharacter(player: Character): void {
     this.pendingCharacterAttachments.push({ sprite: player, position: new Phaser.Math.Vector2(4, 4), isPlayer: true });
@@ -48,6 +57,21 @@ export class CharacterManager {
   public update(onAttach: (attachment: CharacterData) => void, onDetach: (attachment: CharacterData) => void): void {
     this.processPendingCharacterAttachments(onAttach);
     this.processPendingCharacterDetachments(onDetach);
+  }
+
+  public getCharacterMoveActionManager(attachment: CharacterData): CharacterMoveActionManager {
+    if (this.characterMoveActionManagerMap.has(attachment)) {
+      return this.characterMoveActionManagerMap.get(attachment);
+    }
+
+    const manager = new CharacterMoveActionManager(this.characterActionManager);
+    this.characterMoveActionManagerMap.set(attachment, manager);
+
+    return manager;
+  }
+
+  public getCharacterActionAnimationManager(): CharacterActionAnimationManager {
+    return this.characterActionAnimationManager;
   }
 
   private processPendingCharacterAttachments(onAttach: (attachment: CharacterData) => void): void {

@@ -11,6 +11,8 @@ export interface CharacterActionAnimation {
 }
 
 export class CharacterActionAnimationManager {
+  private tileDimensions = new Phaser.Math.Vector2();
+
   private animationQueue: CharacterActionAnimation[] = [];
 
   private totalAnimations = 0;
@@ -25,7 +27,9 @@ export class CharacterActionAnimationManager {
 
   private onComplete: () => void;
 
-  public constructor(private tilemap: Phaser.Tilemaps.Tilemap) { }
+  public constructor(tileWidth?: number, tileHeight?: number) {
+    this.setTileDimensions(tileWidth || 0, tileHeight || 0);
+  }
 
   public add(animation: CharacterActionAnimation): void {
     this.animationQueue.push(animation);
@@ -44,6 +48,10 @@ export class CharacterActionAnimationManager {
     } else {
       onComplete();
     }
+  }
+
+  public setTileDimensions(width: number, height: number): void {
+    this.tileDimensions.set(width, height);
   }
 
   private batchAnimations(): void {
@@ -101,10 +109,10 @@ export class CharacterActionAnimationManager {
     const magnitude = to.subtract(from);
     const duration = 1000;
 
-    const path = new Phaser.Curves.Path();
-    const dst = new Phaser.Math.Vector2(magnitude.x, magnitude.y);
+    const dst = magnitude.clone();
+    dst.multiply(this.tileDimensions);
 
-    dst.multiply(new Phaser.Math.Vector2(this.tilemap.tileWidth, this.tilemap.tileHeight));
+    const path = new Phaser.Curves.Path();
     path.add(new (Phaser.Curves as any).Line([0, 0, dst.x, dst.y]));
 
     character.setPath(path);
