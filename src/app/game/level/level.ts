@@ -37,7 +37,9 @@ export class Level extends Phaser.Scene {
 
   private isPlayerTurn = false;
 
-  private playerPathCache: { [key: string]: number[][] } = {};
+  private playerCharacterPathCache: { [key: string]: number[][] } = {};
+
+  private playerCharacterPathGraphic: Phaser.GameObjects.Graphics;
 
   private endPlayerTurn: (actionCost?: number) => void;
 
@@ -51,6 +53,8 @@ export class Level extends Phaser.Scene {
 
   public create(): void {
     this.generate();
+
+    this.playerCharacterPathGraphic = this.add.graphics();
   }
 
   public update(): void {
@@ -176,7 +180,7 @@ export class Level extends Phaser.Scene {
       cost(actionCost);
       endTurn();
       this.isPlayerTurn = false;
-      this.playerPathCache = {};
+      this.playerCharacterPathCache = {};
     };
 
     // Update display of level state based on display update queue items, then start player turn...
@@ -208,7 +212,6 @@ export class Level extends Phaser.Scene {
           this.characterTurnAnimationQueue.length = 0;
           this.startPlayerTurn();
         } else {
-          console.log(batches);
           const batch = batches.shift();
           const totalBatchAnimations = batch.length;
           let completedBatchAnimations = 0;
@@ -216,7 +219,6 @@ export class Level extends Phaser.Scene {
           batch.forEach(animation => {
             switch (animation.type) {
               case 'move':
-                console.log(animation);
                 const character = animation.character;
                 const magnitude = animation.magnitude;
                 const path = new Phaser.Curves.Path();
@@ -254,12 +256,30 @@ export class Level extends Phaser.Scene {
   private startPlayerTurn(): void {
     this.buildTerrainAndCharacterAwareMovementGrid();
 
+    this.playerCharacterPathGraphic.clear();
+
     if (this.playerCharacterMoveActionQueue.length) {
       const action = this.playerCharacterMoveActionQueue.shift();
+
+      const startFromPosition = this.getPlacementXY(action.payload.from.x, action.payload.from.y);
+      const startToPosition = this.getPlacementXY(action.payload.to.x, action.payload.to.y);
+      const pathForGraphic = new (Phaser.Curves as any).Path(startFromPosition.x, startFromPosition.y);
+
+      pathForGraphic.lineTo(startToPosition.x, startToPosition.y);
+
+      this.playerCharacterMoveActionQueue.forEach(queuedAction => {
+        const worldPosition = this.getPlacementXY(queuedAction.payload.to.x, queuedAction.payload.to.y);
+        pathForGraphic.lineTo(worldPosition.x, worldPosition.y);
+      });
+
+      this.playerCharacterPathGraphic.lineStyle(2, 0xff0000, 1);
+
+      pathForGraphic.draw(this.playerCharacterPathGraphic);
 
       if (this.terrainAndCharacterAwareMovementGrid.isWalkableAt(action.payload.to.x, action.payload.to.y)) {
         this.dispatchAction(action);
         this.endPlayerTurn();
+        return;
       } else {
         this.playerCharacterMoveActionQueue.length = 0;
       }
@@ -311,7 +331,7 @@ export class Level extends Phaser.Scene {
   }
 
   private tilemapPointerMoveListener(pointer): void {
-    if (!this.isPlayerTurn) {
+    if (!this.isPlayerTurn || this.playerCharacterMoveActionQueue.length) {
       return;
     }
 
@@ -322,10 +342,21 @@ export class Level extends Phaser.Scene {
 
       const path = this.getPlayerPath(tile);
 
+      this.playerCharacterPathGraphic.clear();
+
       if (path.length > 1) {
         // Update player path graphics...
-      } else {
-        // Hide player path graphics...
+        const startPosition = this.getPlacementXY(path[0][0], path[0][1]);
+        const pathForGraphic = new (Phaser.Curves as any).Path(startPosition.x, startPosition.y);
+
+        path.forEach(tilePosition => {
+          const worldPosition = this.getPlacementXY(tilePosition[0], tilePosition[1]);
+          pathForGraphic.lineTo(worldPosition.x, worldPosition.y);
+        });
+
+        this.playerCharacterPathGraphic.lineStyle(2, 0xff0000, 1);
+
+        pathForGraphic.draw(this.playerCharacterPathGraphic);
       }
     }
   }
@@ -333,10 +364,10 @@ export class Level extends Phaser.Scene {
   private getPlayerPath(tile: Phaser.Tilemaps.Tile): number[][] {
     const index = tile.x + ',' + tile.y;
 
-    if (!this.playerPathCache[index]) {
+    if (!this.playerCharacterPathCache[index]) {
       const playerPosition = this.playerCharacterAttachment.position;
 
-      this.playerPathCache[index] = this.pathfinder.findPath(
+      this.playerCharacterPathCache[index] = this.pathfinder.findPath(
         playerPosition.x,
         playerPosition.y,
         tile.x,
@@ -345,7 +376,7 @@ export class Level extends Phaser.Scene {
       );
     }
 
-    return this.playerPathCache[index];
+    return this.playerCharacterPathCache[index];
   }
 
   private getPlacementXY(tileX: number, tileY: number, offsetX = 0.5, offsetY = 0.5): Phaser.Math.Vector2 {
