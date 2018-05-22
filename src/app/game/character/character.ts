@@ -1,5 +1,9 @@
+import { CharacterData } from './character-manager';
+
 export class Character extends Phaser.GameObjects.PathFollower {
   private animationsKeyMap;
+
+  public attachment: CharacterData;
 
   public constructor(
     private creature: any,
@@ -20,9 +24,5 @@ export class Character extends Phaser.GameObjects.PathFollower {
 
   public play(key: string, ignoreIfPlaying = false, startFrame = 0): Character {
     return super.play(this.animationsKeyMap[key], ignoreIfPlaying, startFrame) as Character;
-  }
-
-  public update() {
-    this.setDepth(this.y);
   }
 }

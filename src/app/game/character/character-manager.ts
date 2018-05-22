@@ -58,6 +58,8 @@ export class CharacterManager {
         this.nonPlayerCharacterAttachments.push(attachment);
       }
 
+      attachment.sprite.attachment = attachment;
+
       onAttach(attachment);
     });
 
@@ -72,6 +74,8 @@ export class CharacterManager {
         const index = this.nonPlayerCharacterAttachments.indexOf(attachment);
         this.nonPlayerCharacterAttachments.splice(index, 1);
       }
+
+      attachment.sprite.attachment = undefined;
 
       onDetach(attachment);
     });
