@@ -31,27 +31,5 @@ export class MainScene extends Phaser.Scene {
 
     level.attachPlayerCharacter(this.playerCharacter);
     this.scene.bringToTop('Main');
-
-    /*this.time.delayedCall(3500, () => {
-      const path = new Phaser.Curves.Path();
-      path.add(new (Phaser.Curves as any).Line([0, 0, 48, 0]));
-      human.setPath(path);
-      human.startFollow(1000);
-      human.pathTween.setCallback('onStart', () => {
-        human.play('walkRight');
-      }, []);
-      human.pathTween.setCallback('onComplete', () => {
-        human.play('idle');
-        this.time.delayedCall(3500, () => {
-          human.startFollow(1000);
-          human.pathTween.setCallback('onStart', () => {
-            human.play('walkRight');
-          }, []);
-          human.pathTween.setCallback('onComplete', () => {
-            human.play('idle');
-          }, []);
-        }, undefined, undefined);
-      }, []);
-    }, undefined, undefined);*/
   }
 }
