@@ -1,6 +1,8 @@
-import { AStarFinder, Grid } from 'pathfinding';
+import { AStarFinder, DiagonalMovement, Grid } from 'pathfinding';
 
 import { Character } from '../character/character';
+import { CharacterActionAnimationManager } from '../character/character-action-animation-manager';
+import { CharacterActionManager, CharacterActionType } from '../character/character-action-manager';
 import { TerrainService } from '../terrain/terrain.service';
 import { Scheduler } from './scheduler';
 
@@ -19,7 +21,7 @@ export class Level extends Phaser.Scene {
 
   private scheduler = new Scheduler();
 
-  private pathfinder = new AStarFinder();
+  private pathfinder = new AStarFinder({ diagonalMovement: DiagonalMovement.Always });
 
   private terrainAwareMovementGrid: Grid;
 
@@ -31,7 +33,9 @@ export class Level extends Phaser.Scene {
 
   private nonPlayerCharacterAttachments: CharacterAttachment[] = [];
 
-  private characterTurnAnimationQueue = [];
+  private characterActionManager: CharacterActionManager;
+
+  private characterActionAnimationManager: CharacterActionAnimationManager;
 
   private playerCharacterAttachment: CharacterAttachment;
 
@@ -53,6 +57,9 @@ export class Level extends Phaser.Scene {
 
   public create(): void {
     this.generate();
+
+    this.characterActionAnimationManager = new CharacterActionAnimationManager(this.tilemap);
+    this.characterActionManager = new CharacterActionManager(this.characterActionAnimationManager);
 
     this.playerCharacterPathGraphic = this.add.graphics();
   }
@@ -145,36 +152,6 @@ export class Level extends Phaser.Scene {
     });
   }
 
-  private dispatchAction(action): void {
-    switch (action.type) {
-      case 'move':
-        const payload = action.payload;
-        const attachment = payload.active;
-        const character = attachment.character;
-        const from = payload.from;
-        const to = payload.to;
-
-        attachment.position.copy(to);
-
-        const magnitude = to.subtract(from);
-
-        const duration = 1000;
-
-        const tweenStart = () => {
-          character.play(magnitude.x >= 0 ? 'walkRight' : 'walkLeft');
-        };
-
-        const tweenEnd = () => {
-          character.play('idle');
-        };
-
-        this.characterTurnAnimationQueue.push({ type: 'move', magnitude, character, tweenStart, tweenEnd, duration });
-        break;
-      default:
-        break;
-    }
-  }
-
   private playerCharacterTurnListener(player: Character, cost: (c?: number) => void, endTurn: () => void): void {
     this.endPlayerTurn = (actionCost?: number) => {
       cost(actionCost);
@@ -183,74 +160,7 @@ export class Level extends Phaser.Scene {
       this.playerCharacterPathCache = {};
     };
 
-    // Update display of level state based on display update queue items, then start player turn...
-
-    if (this.characterTurnAnimationQueue.length) {
-      // Process queue & do some async shit...
-
-      const totalAnimations = this.characterTurnAnimationQueue.length;
-      let completedAnimations = 0;
-      const batches = [];
-
-      let move = [];
-      this.characterTurnAnimationQueue.forEach(animation => {
-        if (animation.type === 'move') {
-          move.push(animation);
-        } else {
-          batches.push(move);
-          batches.push([animation]);
-          move = [];
-        }
-      });
-
-      if (move.length) {
-        batches.push(move);
-      }
-
-      const onAnimationsBatchComplete = () => {
-        if (completedAnimations >= totalAnimations) {
-          this.characterTurnAnimationQueue.length = 0;
-          this.startPlayerTurn();
-        } else {
-          const batch = batches.shift();
-          const totalBatchAnimations = batch.length;
-          let completedBatchAnimations = 0;
-
-          batch.forEach(animation => {
-            switch (animation.type) {
-              case 'move':
-                const character = animation.character;
-                const magnitude = animation.magnitude;
-                const path = new Phaser.Curves.Path();
-                const dst = new Phaser.Math.Vector2(magnitude.x, magnitude.y);
-
-                dst.multiply(new Phaser.Math.Vector2(this.tilemap.tileWidth, this.tilemap.tileHeight));
-                path.add(new (Phaser.Curves as any).Line([0, 0, dst.x, dst.y]));
-
-                character.setPath(path);
-                character.startFollow(animation.duration);
-                character.pathTween.setCallback('onStart', () => animation.tweenStart(), []);
-                character.pathTween.setCallback('onComplete', () => {
-                  animation.tweenEnd();
-
-                  if (++completedBatchAnimations >= totalBatchAnimations) {
-                    completedAnimations += completedBatchAnimations;
-                    onAnimationsBatchComplete();
-                  }
-                }, []);
-
-                break;
-              default:
-                break;
-            }
-          });
-        }
-      };
-
-      onAnimationsBatchComplete();
-    } else {
-      this.startPlayerTurn();
-    }
+    this.characterActionAnimationManager.run(() => this.startPlayerTurn());
   }
 
   private startPlayerTurn(): void {
@@ -277,7 +187,8 @@ export class Level extends Phaser.Scene {
       pathForGraphic.draw(this.playerCharacterPathGraphic);
 
       if (this.terrainAndCharacterAwareMovementGrid.isWalkableAt(action.payload.to.x, action.payload.to.y)) {
-        this.dispatchAction(action);
+        this.characterActionManager.dispatch(action);
+        // this.dispatchAction(action);
         this.endPlayerTurn();
         return;
       } else {
@@ -305,7 +216,7 @@ export class Level extends Phaser.Scene {
       if (this.terrainAndCharacterAwareMovementGrid.isWalkableAt(firstMove[0], firstMove[1])) {
         // Dispatch move action...
         const action = {
-          type: 'move',
+          type: CharacterActionType.Move,
           payload: {
             active: this.playerCharacterAttachment,
             from: new Phaser.Math.Vector2(start[0], start[1]),
@@ -313,7 +224,8 @@ export class Level extends Phaser.Scene {
           }
         };
 
-        this.dispatchAction(action);
+        this.characterActionManager.dispatch(action);
+        // this.dispatchAction(action);
 
         if (path.length) {
           // Queue additional player move actions...
@@ -337,7 +249,7 @@ export class Level extends Phaser.Scene {
 
     const tile = this.getPointerTile(pointer);
 
-    if (this.currentPointerTile !== tile) {
+    if (tile && this.currentPointerTile !== tile) {
       this.currentPointerTile = tile;
 
       const path = this.getPlayerPath(tile);
