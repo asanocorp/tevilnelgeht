@@ -33,6 +33,6 @@ export class CharacterActionManager {
     const to = payload.to;
 
     attachment.position.copy(to);
-    this.animationManager.add({ type: CharacterActionAnimationType.Move, character: attachment.character, to, from });
+    this.animationManager.add({ type: CharacterActionAnimationType.Move, sprite: attachment.sprite, to, from });
   }
 }

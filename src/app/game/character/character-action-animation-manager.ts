@@ -6,7 +6,7 @@ export enum CharacterActionAnimationType {
 
 export interface CharacterActionAnimation {
   type: CharacterActionAnimationType;
-  character: Character;
+  sprite: Character;
   [prop: string]: any;
 }
 
@@ -95,7 +95,7 @@ export class CharacterActionAnimationManager {
   }
 
   private runMoveAnimation(animation: CharacterActionAnimation): void {
-    const character = animation.character;
+    const character = animation.sprite;
     const from = animation.from;
     const to = animation.to;
     const magnitude = to.subtract(from);

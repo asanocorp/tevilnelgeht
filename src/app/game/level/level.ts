@@ -1,15 +1,10 @@
 import { Character } from '../character/character';
 import { CharacterActionAnimationManager } from '../character/character-action-animation-manager';
 import { CharacterActionManager, CharacterActionType } from '../character/character-action-manager';
+import { CharacterManager } from '../character/character-manager';
 import { TerrainService } from '../terrain/terrain.service';
 import { PathfinderManager } from './pathfinder-manager';
 import { Scheduler } from './scheduler';
-
-interface CharacterAttachment {
-  character: Character;
-  position: Phaser.Math.Vector2;
-  isPlayer?: boolean;
-}
 
 export class Level extends Phaser.Scene {
   private datamap = {};
@@ -22,17 +17,11 @@ export class Level extends Phaser.Scene {
 
   private pathfinderManager = new PathfinderManager();
 
-  private pendingCharacterAttachments: CharacterAttachment[] = [];
-
-  private pendingCharacterDetachments: CharacterAttachment[] = [];
-
-  private nonPlayerCharacterAttachments: CharacterAttachment[] = [];
+  private characterManager = new CharacterManager();
 
   private characterActionManager: CharacterActionManager;
 
   private characterActionAnimationManager: CharacterActionAnimationManager;
-
-  private playerCharacterAttachment: CharacterAttachment;
 
   private isPlayerTurn = false;
 
@@ -60,9 +49,10 @@ export class Level extends Phaser.Scene {
   }
 
   public update(): void {
-    this.processPendingCharacterDetachments();
-    this.processPendingCharacterAttachments();
-    this.playerCharacterAttachment.character.update();
+    this.characterManager.update(
+      attachment => this.onCharacterAttachment(attachment),
+      attachment => this.onCharacterDetachment(attachment)
+    );
 
     if (this.startScheduler) {
       this.scheduler.start();
@@ -71,63 +61,46 @@ export class Level extends Phaser.Scene {
   }
 
   public attachPlayerCharacter(player: Character): void {
-    this.pendingCharacterAttachments.push({ character: player, position: new Phaser.Math.Vector2(4, 4), isPlayer: true });
+    this.characterManager.attachPlayerCharacter(player);
   }
 
   public detachPlayerCharacter(): Character {
-    this.pendingCharacterDetachments.push(this.playerCharacterAttachment);
-    return this.playerCharacterAttachment.character;
+    return this.characterManager.detachPlayerCharacter();
   }
 
-  private attachNonPlayerCharacter(character: Character, position: Phaser.Math.Vector2): void {
-    this.pendingCharacterAttachments.push({ character, position });
+  private onCharacterAttachment(attachment): void {
+    const sprite = attachment.sprite;
+
+    if (attachment.isPlayer) {
+      sprite.on('turn', this.playerCharacterTurnListener, this);
+    } else {
+      // sprite.on('turn', (character, cost, endTurn) => { cost(); endTurn(); }, this);
+      // sprite.on('pointerover', () => attachment.character.setTint(0xff0000));
+      // sprite.on('pointerout', () => attachment.character.clearTint());
+      // sprite.on('pointermove', () => attachment.character.setAlpha(0.5, 1, 1, 0.5));
+    }
+
+    const position = this.getPlacementXY(attachment.position.x, attachment.position.y);
+
+    sprite.setPosition(position.x, position.y);
+    sprite.play('idle');
+
+    this.add.existing(sprite).setInteractive();
+    this.scheduler.add(sprite);
   }
 
-  private detachNonPlayerCharacter(character: Character): void {
-    const characterAttachment = this.nonPlayerCharacterAttachments.find(attachment => character === attachment.character);
-    this.pendingCharacterDetachments.push(characterAttachment);
-  }
+  private onCharacterDetachment(attachment): void {
+    const sprite = attachment.sprite;
 
-  private processPendingCharacterAttachments(): void {
-    this.pendingCharacterAttachments.forEach(attachment => {
-      if (attachment.isPlayer) {
-        this.playerCharacterAttachment = attachment;
-        attachment.character.on('turn', this.playerCharacterTurnListener, this);
-      } else {
-        this.nonPlayerCharacterAttachments.push(attachment);
-        // attachment.character.on('pointerover', () => attachment.character.setTint(0xff0000));
-        // attachment.character.on('pointerout', () => attachment.character.clearTint());
-        // attachment.character.on('pointermove', () => attachment.character.setAlpha(0.5, 1, 1, 0.5));
-      }
+    if (attachment.isPlayer) {
+      sprite.off('turn', this.playerCharacterTurnListener, this, false);
+    } else {
+      // sprite.off('turn', () => console.log('derp'), this, false);
+    }
 
-      const position = this.getPlacementXY(attachment.position.x, attachment.position.y);
-
-      attachment.character.setPosition(position.x, position.y);
-      attachment.character.play('idle');
-
-      this.add.existing(attachment.character).setInteractive();
-      this.scheduler.add(attachment.character);
-    });
-
-    this.pendingCharacterAttachments.length = 0;
-  }
-
-  private processPendingCharacterDetachments(): void {
-    this.pendingCharacterDetachments.forEach(attachment => {
-      if (attachment.isPlayer) {
-        this.playerCharacterAttachment = undefined;
-        attachment.character.off('turn', this.playerCharacterTurnListener, this, false);
-      } else {
-        const index = this.nonPlayerCharacterAttachments.indexOf(attachment);
-        this.nonPlayerCharacterAttachments.splice(index, 1);
-      }
-
-      this.scheduler.remove(attachment.character);
-      this.sys.displayList.remove(attachment.character);
-      this.sys.updateList.remove(attachment.character);
-    });
-
-    this.pendingCharacterDetachments.length = 0;
+    this.scheduler.remove(sprite);
+    this.sys.displayList.remove(sprite);
+    this.sys.updateList.remove(sprite);
   }
 
   private playerCharacterTurnListener(player: Character, cost: (c?: number) => void, endTurn: () => void): void {
@@ -142,7 +115,7 @@ export class Level extends Phaser.Scene {
   }
 
   private startPlayerTurn(): void {
-    this.pathfinderManager.buildTerrainAndCharacterGrid(this.nonPlayerCharacterAttachments.map(attachment => attachment.position));
+    this.pathfinderManager.buildTerrainAndCharacterGrid(this.characterManager.getNonPlayerCharacterPositions());
 
     this.playerCharacterPathGraphic.clear();
 
@@ -195,7 +168,7 @@ export class Level extends Phaser.Scene {
         const action = {
           type: CharacterActionType.Move,
           payload: {
-            active: this.playerCharacterAttachment,
+            active: this.characterManager.getPlayerCharacterData(),
             from: new Phaser.Math.Vector2(start.x, start.y),
             to: new Phaser.Math.Vector2(firstMove.x, firstMove.y)
           }
@@ -210,7 +183,7 @@ export class Level extends Phaser.Scene {
             const to = new Phaser.Math.Vector2(path[i].x, path[i].y);
             this.playerCharacterMoveActionQueue.push({
               type: CharacterActionType.Move,
-              payload: { active: this.playerCharacterAttachment, from, to }
+              payload: { active: this.characterManager.getPlayerCharacterData(), from, to }
             });
             from = new Phaser.Math.Vector2(to.x, to.y);
           }
@@ -256,7 +229,7 @@ export class Level extends Phaser.Scene {
     const index = tile.x + ',' + tile.y;
 
     if (!this.playerCharacterPathCache[index]) {
-      const playerPosition = this.playerCharacterAttachment.position;
+      const playerPosition = this.characterManager.getPlayerCharacterPosition();
       this.playerCharacterPathCache[index] = this.pathfinderManager.find(playerPosition, new Phaser.Math.Vector2(tile.x, tile.y));
     }
 
