@@ -3,7 +3,6 @@ import { Injectable } from '@angular/core';
 import { Character } from '../character/character';
 import { CharacterService } from '../character/character.service';
 import { LevelService } from '../level/level.service';
-import { TerrainService } from '../terrain/terrain.service';
 
 @Injectable({
   providedIn: 'root'
@@ -11,25 +10,22 @@ import { TerrainService } from '../terrain/terrain.service';
 export class MainScene extends Phaser.Scene {
   private playerCharacter: Character;
 
-  public constructor(
-    private characterService: CharacterService,
-    private levelService: LevelService,
-    private terrainService: TerrainService
-  ) {
+  public constructor(private characterService: CharacterService, private levelService: LevelService) {
     super({ key: 'Main' });
   }
 
   public create(): void {
-    const level = this.levelService.load('somelevel');
+    const level = this.levelService.load('dungeon');
     this.scene.add(level.sys.settings.key, level, false);
     this.scene.launch(level.sys.settings.key);
 
     this.playerCharacter = this.characterService.generate('human', {}, this);
-    // this.playerCharacter.on('pointerover', () => this.playerCharacter.setTint(0xff0000));
-    // this.playerCharacter.on('pointerout', () => this.playerCharacter.clearTint());
-    // this.playerCharacter.on('pointermove', () => this.playerCharacter.setAlpha(0.5, 1, 1, 0.5));
 
     level.attachPlayerCharacter(this.playerCharacter);
+
+    // Attach player sprite input listeners...
+
+    // Required so player sprite remains interactive when attached to a level.
     this.scene.bringToTop('Main');
   }
 }

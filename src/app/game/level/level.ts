@@ -1,13 +1,12 @@
 import { Character } from '../character/character';
-import { CharacterManager } from '../character/character-manager';
+import { CharacterData, CharacterManager } from '../character/character-manager';
 import { TerrainService } from '../terrain/terrain.service';
+import { LevelTemplate } from './level-template';
 import { PathfinderManager } from './pathfinder-manager';
 import { PathGraphics } from './path-graphics';
 import { Scheduler } from './scheduler';
 
 export class Level extends Phaser.Scene {
-  private datamap = {};
-
   private tilemap: Phaser.Tilemaps.Tilemap;
 
   private currentPointerTile: Phaser.Tilemaps.Tile;
@@ -24,16 +23,18 @@ export class Level extends Phaser.Scene {
 
   private playerCharacterPathGraphics: PathGraphics;
 
-  private endPlayerTurn: (actionCost?: number) => void;
+  private endCharacterTurn: (actionCost?: number) => void;
 
   private startScheduler = true;
 
-  public constructor(key: string, private terrainService: TerrainService) {
+  public constructor(key: string, private template: LevelTemplate) {
     super({ key });
   }
 
   public create(): void {
-    this.generate();
+    this.createTilemap();
+
+    this.pathfinderManager.buildTerrainGrid(this.template.width, this.template.height, this.template.datamap);
 
     this.characterManager.getCharacterActionAnimationManager().setTileDimensions(this.tilemap.tileWidth, this.tilemap.tileHeight);
 
@@ -70,14 +71,7 @@ export class Level extends Phaser.Scene {
   private onCharacterAttachment(attachment): void {
     const sprite = attachment.sprite;
 
-    if (attachment.isPlayer) {
-      sprite.on('turn', this.playerCharacterTurnListener, this);
-    } else {
-      // sprite.on('turn', (character, cost, endTurn) => { cost(); endTurn(); }, this);
-      // sprite.on('pointerover', () => attachment.character.setTint(0xff0000));
-      // sprite.on('pointerout', () => attachment.character.clearTint());
-      // sprite.on('pointermove', () => attachment.character.setAlpha(0.5, 1, 1, 0.5));
-    }
+    sprite.on('turn', this.characterTurnListener, this);
 
     const position = this.getPlacementXY(attachment.position.x, attachment.position.y);
 
@@ -91,92 +85,71 @@ export class Level extends Phaser.Scene {
   private onCharacterDetachment(attachment): void {
     const sprite = attachment.sprite;
 
-    if (attachment.isPlayer) {
-      sprite.off('turn', this.playerCharacterTurnListener, this, false);
-    } else {
-      // sprite.off('turn', () => console.log('derp'), this, false);
-    }
+    sprite.off('turn', this.characterTurnListener, this, false);
 
     this.scheduler.remove(sprite);
     this.sys.displayList.remove(sprite);
     this.sys.updateList.remove(sprite);
   }
 
-  private playerCharacterTurnListener(player: Character, cost: (c?: number) => void, endTurn: () => void): void {
-    this.endPlayerTurn = (actionCost?: number) => {
+  private characterTurnListener(character: Character, cost: (c?: number) => void, endTurn: () => void): void {
+    const attachment = character.attachment;
+
+    this.endCharacterTurn = (actionCost?: number) => {
+      if (attachment.isPlayer) {
+        this.isPlayerTurn = false;
+        this.playerCharacterPathCache = {};
+      }
+
       cost(actionCost);
       endTurn();
-      this.isPlayerTurn = false;
-      this.playerCharacterPathCache = {};
     };
 
-    this.characterManager.getCharacterActionAnimationManager().run(() => this.startPlayerTurn());
+    if (attachment.isPlayer) {
+      // Start PC turn after pending character action animations are complete.
+      this.characterManager.getCharacterActionAnimationManager().run(() => this.startCharacterTurn(attachment));
+    } else {
+      // Start NPC turn.
+      this.startCharacterTurn(attachment);
+    }
   }
 
-  private startPlayerTurn(): void {
-    this.pathfinderManager.buildTerrainAndCharacterGrid(this.characterManager.getNonPlayerCharacterPositions());
+  private startCharacterTurn(attachment: CharacterData): void {
+    // Build character specific pathfinder grid.
+    if (attachment.isPlayer) {
+      this.pathfinderManager.buildTerrainAndCharacterGrid(this.characterManager.getNonPlayerCharacterPositions());
+      this.playerCharacterPathGraphics.clear();
+    } else {
+      this.pathfinderManager.buildTerrainAndCharacterGrid(this.characterManager.getCharacterPositions([attachment]));
+    }
 
-    this.playerCharacterPathGraphics.clear();
-
-    const moveActionManager = this.characterManager.getCharacterMoveActionManager(this.characterManager.getPlayerCharacterData());
-
+    // Resolve any pending move actions for character.
+    const moveActionManager = this.characterManager.getCharacterMoveActionManager(attachment);
     if (moveActionManager.hasPending()) {
       const actions = moveActionManager.getPending();
 
-      const path = actions.map(action => action.payload.from);
-      path.push(actions[actions.length - 1].payload.to);
+      if (attachment.isPlayer) {
+        const path = actions.map(action => action.payload.from);
+        path.push(actions[actions.length - 1].payload.to);
 
-      this.playerCharacterPathGraphics.drawPath(path);
+        this.playerCharacterPathGraphics.drawPath(path);
+      }
 
       if (moveActionManager.processNext(position => this.pathfinderManager.allowsMove(position))) {
-        this.endPlayerTurn();
+        // Good move, end turn.
+        this.endCharacterTurn();
         return;
       } else {
+        // Path is blocked, clear path & await new character action.
         moveActionManager.clear();
       }
     }
 
-    this.isPlayerTurn = true;
-  }
-
-  private tilemapPointerDownListener(pointer): void {
-    const moveActionManager = this.characterManager.getCharacterMoveActionManager(this.characterManager.getPlayerCharacterData());
-
-    if (!this.isPlayerTurn || moveActionManager.hasPending()) {
-      return;
-    }
-
-    const tile = this.getPointerTile(pointer);
-    const path = this.getPlayerPath(tile);
-
-    if (path.length > 1) {
-      moveActionManager.add(this.characterManager.getPlayerCharacterData(), path);
-
-      if (moveActionManager.processNext(position => this.pathfinderManager.allowsMove(position))) {
-        this.endPlayerTurn();
-      }
-    }
-  }
-
-  private tilemapPointerMoveListener(pointer): void {
-    const moveActionManager = this.characterManager.getCharacterMoveActionManager(this.characterManager.getPlayerCharacterData());
-
-    if (!this.isPlayerTurn || moveActionManager.hasPending()) {
-      return;
-    }
-
-    const tile = this.getPointerTile(pointer);
-
-    if (tile && this.currentPointerTile !== tile) {
-      this.currentPointerTile = tile;
-
-      const path = this.getPlayerPath(tile);
-
-      this.playerCharacterPathGraphics.clear();
-
-      if (path.length > 1) {
-        this.playerCharacterPathGraphics.drawPath(path);
-      }
+    // No pending move actions or path is blocked, perform character specific action.
+    if (attachment.isPlayer) {
+      this.isPlayerTurn = true;
+    } else {
+      // Execute npc action...
     }
   }
 
@@ -196,52 +169,14 @@ export class Level extends Phaser.Scene {
     return this.tilemap.getTileAtWorldXY(position.x, position.y);
   }
 
-  private generate(): void {
-    const width = 9;
-    const height = 9;
+  private createTilemap(): void {
+    const { tileset, tilesetIndex, tileWidth, tileHeight, width, height, datamap  } = this.template;
 
-    const terrainCategory = this.terrainService.TerrainCategory.Dungeon;
-    const terrainSubTypes = this.terrainService.TerrainSubType;
-
-    // const map = {};
-
-    const wallNoFaceRules = this.terrainService.getTerrainRules(terrainCategory, terrainSubTypes.WallNoFace);
-    const wallBottomFaceRules = this.terrainService.getTerrainRules(terrainCategory, terrainSubTypes.WallBottomFace);
-    const floorRules = this.terrainService.getTerrainRules(terrainCategory, terrainSubTypes.Floor);
-
-    this.datamap[0 + ',' + 0] = { terrainRules: wallNoFaceRules };
-    for (let x = 1; x < width - 1; ++x) {
-      this.datamap[x + ',' + 0] = { terrainRules: wallBottomFaceRules };
-    }
-    this.datamap[(width - 1) + ',' + 0] = { terrainRules: wallNoFaceRules };
-
-    for (let y = 1; y < height - 1; ++y) {
-      this.datamap[0 + ',' + y] = { terrainRules: wallNoFaceRules };
-      for (let x = 1; x < width - 1; ++x) {
-        this.datamap[x + ',' + y] = { terrainRules: floorRules };
-      }
-       this.datamap[(width - 1) + ',' + y] = { terrainRules: wallNoFaceRules };
-    }
-
-    this.datamap[0 + ',' + (height - 1)] = { terrainRules: wallNoFaceRules };
-    for (let x = 1; x < width - 1; ++x) {
-      this.datamap[x + ',' + (height - 1)] = { terrainRules: wallNoFaceRules };
-    }
-    this.datamap[(width - 1) + ',' + (height - 1)] = { terrainRules: wallNoFaceRules };
-
-    this.tilemap = this.make.tilemap({
-      tileWidth: this.terrainService.tileWidth,
-      tileHeight: this.terrainService.tileHeight,
-      width,
-      height
-    });
-
-    this.pathfinderManager.buildTerrainGrid(width, height, this.datamap);
-    // this.buildTerrainAwareMovementGrid();
+    this.tilemap = this.make.tilemap({ tileWidth, tileHeight, width, height });
 
     const layer = this.tilemap.createBlankDynamicLayer(
       'Terrain',
-      this.tilemap.addTilesetImage(this.terrainService.tilesetImageKey),
+      this.tilemap.addTilesetImage(tileset),
       undefined,
       undefined,
       undefined,
@@ -252,23 +187,51 @@ export class Level extends Phaser.Scene {
     layer.on('pointermove', pointer => this.tilemapPointerMoveListener(pointer));
     layer.on('pointerdown', pointer => this.tilemapPointerDownListener(pointer));
 
-    const wallNoFaceIndex = this.terrainService.getTileIndex(terrainCategory, this.terrainService.TerrainSubType.WallNoFace);
-    const wallBottomFaceIndex = this.terrainService.getTileIndex(terrainCategory, this.terrainService.TerrainSubType.WallBottomFace);
-    const floorIndex = this.terrainService.getTileIndex(terrainCategory, this.terrainService.TerrainSubType.Floor);
-
-    Object.keys(this.datamap).map(index => {
+    Object.keys(datamap).map(index => {
       const [x, y] = index.split(',').map(c => Number.parseInt(c));
-      switch (this.datamap[index].terrainRules.terrainSubType) {
-        case this.terrainService.TerrainSubType.WallNoFace:
-          this.tilemap.putTileAt(wallNoFaceIndex, x, y);
-          break;
-        case this.terrainService.TerrainSubType.WallBottomFace:
-          this.tilemap.putTileAt(wallBottomFaceIndex, x, y);
-          break;
-        case this.terrainService.TerrainSubType.Floor:
-        this.tilemap.putTileAt(floorIndex, x, y);
-          break;
-      }
+      this.tilemap.putTileAt(tilesetIndex[datamap[index].terrainRules.terrainSubType], x, y);
     });
+  }
+
+  private tilemapPointerMoveListener(pointer): void {
+    const playerAttachment = this.characterManager.getPlayerCharacterData();
+    const moveActionManager = this.characterManager.getCharacterMoveActionManager(playerAttachment);
+
+    if (!this.isPlayerTurn || moveActionManager.hasPending()) {
+      return;
+    }
+
+    const tile = this.getPointerTile(pointer);
+
+    if (tile && this.currentPointerTile !== tile) {
+      this.currentPointerTile = tile;
+
+      this.playerCharacterPathGraphics.clear();
+      const path = this.getPlayerPath(tile);
+
+      if (path.length > 1) {
+        this.playerCharacterPathGraphics.drawPath(path);
+      }
+    }
+  }
+
+  private tilemapPointerDownListener(pointer): void {
+    const playerAttachment = this.characterManager.getPlayerCharacterData();
+    const moveActionManager = this.characterManager.getCharacterMoveActionManager(playerAttachment);
+
+    if (!this.isPlayerTurn || moveActionManager.hasPending()) {
+      return;
+    }
+
+    const tile = this.getPointerTile(pointer);
+    const path = this.getPlayerPath(tile);
+
+    if (path.length > 1) {
+      moveActionManager.add(playerAttachment, path);
+
+      if (moveActionManager.processNext(position => this.pathfinderManager.allowsMove(position))) {
+        this.endCharacterTurn();
+      }
+    }
   }
 }

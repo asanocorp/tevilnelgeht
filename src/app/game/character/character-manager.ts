@@ -54,6 +54,12 @@ export class CharacterManager {
     return this.nonPlayerCharacterAttachments.map(attachment => attachment.position.clone());
   }
 
+  public getCharacterPositions(exclusions: CharacterData[] = []): Phaser.Math.Vector2[] {
+    let attachments = [].concat([this.playerCharacterAttachment], this.nonPlayerCharacterAttachments);
+    attachments = attachments.filter(attachment => !exclusions.includes(attachment));
+    return attachments.map(attachment => attachment.position.clone());
+  }
+
   public update(onAttach: (attachment: CharacterData) => void, onDetach: (attachment: CharacterData) => void): void {
     this.processPendingCharacterAttachments(onAttach);
     this.processPendingCharacterDetachments(onDetach);
