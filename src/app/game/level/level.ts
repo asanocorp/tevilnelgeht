@@ -23,19 +23,25 @@ export class Level extends Phaser.Scene {
 
   private terrainAwareMovementGrid: Grid;
 
+  private terrainAndCharacterAwareMovementGrid: Grid;
+
   private pendingCharacterAttachments: CharacterAttachment[] = [];
 
   private pendingCharacterDetachments: CharacterAttachment[] = [];
 
   private nonPlayerCharacterAttachments: CharacterAttachment[] = [];
 
+  private characterTurnAnimationQueue = [];
+
   private playerCharacterAttachment: CharacterAttachment;
 
   private isPlayerTurn = false;
 
-  private playerPathCache = {};
+  private playerPathCache: { [key: string]: number[][] } = {};
 
   private endPlayerTurn: (actionCost?: number) => void;
+
+  private playerCharacterMoveActionQueue = [];
 
   private startScheduler = true;
 
@@ -118,15 +124,228 @@ export class Level extends Phaser.Scene {
     this.pendingCharacterDetachments.length = 0;
   }
 
+  private buildTerrainAwareMovementGrid(): void {
+    this.terrainAwareMovementGrid = new Grid(this.tilemap.width, this.tilemap.height);
+
+    Object.keys(this.datamap).forEach(index => {
+      const [x, y] = index.split(',').map(c => Number.parseInt(c));
+      this.terrainAwareMovementGrid.setWalkableAt(x, y, !this.datamap[index].terrainRules.blockMove);
+    });
+  }
+
+  private buildTerrainAndCharacterAwareMovementGrid(): void {
+    this.terrainAndCharacterAwareMovementGrid = this.terrainAwareMovementGrid.clone();
+    this.nonPlayerCharacterAttachments.forEach(attachment => {
+      const position = attachment.position;
+      this.terrainAndCharacterAwareMovementGrid.setWalkableAt(position.x, position.y, false);
+    });
+  }
+
+  private dispatchAction(action): void {
+    switch (action.type) {
+      case 'move':
+        const payload = action.payload;
+        const attachment = payload.active;
+        const character = attachment.character;
+        const from = payload.from;
+        const to = payload.to;
+
+        attachment.position.copy(to);
+
+        const magnitude = to.subtract(from);
+
+        const duration = 1000;
+
+        const tweenStart = () => {
+          character.play(magnitude.x >= 0 ? 'walkRight' : 'walkLeft');
+        };
+
+        const tweenEnd = () => {
+          character.play('idle');
+        };
+
+        this.characterTurnAnimationQueue.push({ type: 'move', magnitude, character, tweenStart, tweenEnd, duration });
+        break;
+      default:
+        break;
+    }
+  }
+
   private playerCharacterTurnListener(player: Character, cost: (c?: number) => void, endTurn: () => void): void {
-    console.log('player turn');
-    this.isPlayerTurn = true;
     this.endPlayerTurn = (actionCost?: number) => {
       cost(actionCost);
       endTurn();
       this.isPlayerTurn = false;
       this.playerPathCache = {};
     };
+
+    // Update display of level state based on display update queue items, then start player turn...
+
+    if (this.characterTurnAnimationQueue.length) {
+      // Process queue & do some async shit...
+
+      const totalAnimations = this.characterTurnAnimationQueue.length;
+      let completedAnimations = 0;
+      const batches = [];
+
+      let move = [];
+      this.characterTurnAnimationQueue.forEach(animation => {
+        if (animation.type === 'move') {
+          move.push(animation);
+        } else {
+          batches.push(move);
+          batches.push([animation]);
+          move = [];
+        }
+      });
+
+      if (move.length) {
+        batches.push(move);
+      }
+
+      const onAnimationsBatchComplete = () => {
+        if (completedAnimations >= totalAnimations) {
+          this.characterTurnAnimationQueue.length = 0;
+          this.startPlayerTurn();
+        } else {
+          console.log(batches);
+          const batch = batches.shift();
+          const totalBatchAnimations = batch.length;
+          let completedBatchAnimations = 0;
+
+          batch.forEach(animation => {
+            switch (animation.type) {
+              case 'move':
+                console.log(animation);
+                const character = animation.character;
+                const magnitude = animation.magnitude;
+                const path = new Phaser.Curves.Path();
+                const dst = new Phaser.Math.Vector2(magnitude.x, magnitude.y);
+
+                dst.multiply(new Phaser.Math.Vector2(this.tilemap.tileWidth, this.tilemap.tileHeight));
+                path.add(new (Phaser.Curves as any).Line([0, 0, dst.x, dst.y]));
+
+                character.setPath(path);
+                character.startFollow(animation.duration);
+                character.pathTween.setCallback('onStart', () => animation.tweenStart(), []);
+                character.pathTween.setCallback('onComplete', () => {
+                  animation.tweenEnd();
+
+                  if (++completedBatchAnimations >= totalBatchAnimations) {
+                    completedAnimations += completedBatchAnimations;
+                    onAnimationsBatchComplete();
+                  }
+                }, []);
+
+                break;
+              default:
+                break;
+            }
+          });
+        }
+      };
+
+      onAnimationsBatchComplete();
+    } else {
+      this.startPlayerTurn();
+    }
+  }
+
+  private startPlayerTurn(): void {
+    this.buildTerrainAndCharacterAwareMovementGrid();
+
+    if (this.playerCharacterMoveActionQueue.length) {
+      const action = this.playerCharacterMoveActionQueue.shift();
+
+      if (this.terrainAndCharacterAwareMovementGrid.isWalkableAt(action.payload.to.x, action.payload.to.y)) {
+        this.dispatchAction(action);
+        this.endPlayerTurn();
+      } else {
+        this.playerCharacterMoveActionQueue.length = 0;
+      }
+    }
+
+    this.isPlayerTurn = true;
+  }
+
+  private tilemapPointerDownListener(pointer): void {
+    if (!this.isPlayerTurn || this.playerCharacterMoveActionQueue.length) {
+      return;
+    }
+
+    const tile = this.getPointerTile(pointer);
+    const index = tile.x + ',' + tile.y;
+    const path = this.getPlayerPath(tile);
+
+    if (path.length > 1) {
+      // Queue multiple actions if required, dispatch first action...
+      const start = path.shift();
+      const firstMove = path.shift();
+
+      if (this.terrainAndCharacterAwareMovementGrid.isWalkableAt(firstMove[0], firstMove[1])) {
+        // Dispatch move action...
+        const action = {
+          type: 'move',
+          payload: {
+            active: this.playerCharacterAttachment,
+            from: new Phaser.Math.Vector2(start[0], start[1]),
+            to: new Phaser.Math.Vector2(firstMove[0], firstMove[1])
+          }
+        };
+
+        this.dispatchAction(action);
+
+        if (path.length) {
+          // Queue additional player move actions...
+          let from = new Phaser.Math.Vector2(firstMove[0], firstMove[1]);
+          for (let i = 0, len = path.length; i < len; ++i) {
+            const to = new Phaser.Math.Vector2(path[i][0], path[i][1]);
+            this.playerCharacterMoveActionQueue.push({ type: 'move', payload: { active: this.playerCharacterAttachment, from, to } });
+            from = new Phaser.Math.Vector2(to.x, to.y);
+          }
+        }
+
+        this.endPlayerTurn();
+      }
+    }
+  }
+
+  private tilemapPointerMoveListener(pointer): void {
+    if (!this.isPlayerTurn) {
+      return;
+    }
+
+    const tile = this.getPointerTile(pointer);
+
+    if (this.currentPointerTile !== tile) {
+      this.currentPointerTile = tile;
+
+      const path = this.getPlayerPath(tile);
+
+      if (path.length > 1) {
+        // Update player path graphics...
+      } else {
+        // Hide player path graphics...
+      }
+    }
+  }
+
+  private getPlayerPath(tile: Phaser.Tilemaps.Tile): number[][] {
+    const index = tile.x + ',' + tile.y;
+
+    if (!this.playerPathCache[index]) {
+      const playerPosition = this.playerCharacterAttachment.position;
+
+      this.playerPathCache[index] = this.pathfinder.findPath(
+        playerPosition.x,
+        playerPosition.y,
+        tile.x,
+        tile.y,
+        this.terrainAndCharacterAwareMovementGrid.clone()
+      );
+    }
+
+    return this.playerPathCache[index];
   }
 
   private getPlacementXY(tileX: number, tileY: number, offsetX = 0.5, offsetY = 0.5): Phaser.Math.Vector2 {
@@ -144,8 +363,6 @@ export class Level extends Phaser.Scene {
   private generate(): void {
     const width = 9;
     const height = 9;
-
-    this.terrainAwareMovementGrid = new Grid(width, height);
 
     const terrainCategory = this.terrainService.TerrainCategory.Dungeon;
     const terrainSubTypes = this.terrainService.TerrainSubType;
@@ -176,17 +393,14 @@ export class Level extends Phaser.Scene {
     }
     this.datamap[(width - 1) + ',' + (height - 1)] = { terrainRules: wallNoFaceRules };
 
-    Object.keys(this.datamap).forEach(index => {
-      const [x, y] = index.split(',').map(c => Number.parseInt(c));
-      this.terrainAwareMovementGrid.setWalkableAt(x, y, !this.datamap[index].terrainRules.blockMove);
-    });
-
     this.tilemap = this.make.tilemap({
       tileWidth: this.terrainService.tileWidth,
       tileHeight: this.terrainService.tileHeight,
       width,
       height
     });
+
+    this.buildTerrainAwareMovementGrid();
 
     const layer = this.tilemap.createBlankDynamicLayer(
       'Terrain',
@@ -198,65 +412,8 @@ export class Level extends Phaser.Scene {
     );
 
     layer.setInteractive();
-    layer.on('pointermove', pointer => {
-      if (!this.isPlayerTurn) {
-        return;
-      }
-
-      const tile = this.getPointerTile(pointer);
-
-      if (this.currentPointerTile !== tile) {
-        const index = tile.x + ',' + tile.y;
-
-        if (!this.playerPathCache[index]) {
-          this.playerPathCache[index] = this.pathfinder.findPath(
-            this.playerCharacterAttachment.position.x,
-            this.playerCharacterAttachment.position.y,
-            tile.x,
-            tile.y,
-            this.terrainAwareMovementGrid.clone()
-          );
-        }
-
-        const path = this.playerPathCache[index];
-
-        if (path.length > 1) {
-
-        } else {
-
-        }
-
-        this.currentPointerTile = tile;
-      }
-    });
-    layer.on('pointerdown', pointer => {
-      if (!this.isPlayerTurn) {
-        return;
-      }
-
-      const tile = this.getPointerTile(pointer);
-      const index = tile.x + ',' + tile.y;
-
-      if (!this.playerPathCache[index]) {
-        this.playerPathCache[index] = this.pathfinder.findPath(
-          this.playerCharacterAttachment.position.x,
-          this.playerCharacterAttachment.position.y,
-          tile.x,
-          tile.y,
-          this.terrainAwareMovementGrid.clone()
-        );
-      }
-
-      const path = this.playerPathCache[index];
-
-      if (path.length > 1) {
-
-      } else {
-
-      }
-
-      this.endPlayerTurn();
-    });
+    layer.on('pointermove', pointer => this.tilemapPointerMoveListener(pointer));
+    layer.on('pointerdown', pointer => this.tilemapPointerDownListener(pointer));
 
     const wallNoFaceIndex = this.terrainService.getTileIndex(terrainCategory, this.terrainService.TerrainSubType.WallNoFace);
     const wallBottomFaceIndex = this.terrainService.getTileIndex(terrainCategory, this.terrainService.TerrainSubType.WallBottomFace);
