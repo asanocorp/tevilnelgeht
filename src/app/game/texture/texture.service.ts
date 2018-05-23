@@ -11,7 +11,7 @@ export class TextureService {
 
   private static readonly imageDataAlphaChannelOffset = 3;
 
-  public generate(data: string[], pixelWidth: number, pixelHeight: number, shadowColor?: string): HTMLCanvasElement {
+  public generateCanvas(data: string[], pixelWidth: number, pixelHeight: number, shadowColor?: string): HTMLCanvasElement {
     const outputTextureCanvas = GenerateTexture({ data, pixelWidth, pixelHeight });
 
     if (!shadowColor) {
@@ -44,5 +44,18 @@ export class TextureService {
     outputTextureContext.drawImage(GenerateTexture({ data, pixelWidth, pixelHeight }), 0, 0);
 
     return outputTextureCanvas;
+  }
+
+  public loadTextures(scene: Phaser.Scene, textures: any[], pixelWidth: number, pixelHeight: number): void {
+    textures.forEach(
+      texture => scene.textures.addCanvas(
+        texture.key,
+        this.generateCanvas(texture.data, pixelWidth, pixelHeight, texture.shadowColor)
+      )
+    );
+  }
+
+  public loadAnimations(scene: Phaser.Scene, animations: any[]): void {
+    animations.forEach(animation => scene.anims.create(animation));
   }
 }

@@ -46,7 +46,7 @@ export class TerrainService {
   }
 
   public loadTerrainTileset(scene: Phaser.Scene): void {
-    scene.textures.addCanvas('terrain', this.textureService.generate(this.buildTilesetData(), this.pixelWidth, this.pixelHeight));
+    this.textureService.loadTextures(scene, [{ key: 'terrain', data: this.buildTilesetData() }], this.pixelWidth, this.pixelHeight);
   }
 
   private buildTilesetData(): string[] {

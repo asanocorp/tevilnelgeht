@@ -27,21 +27,8 @@ export class CreatureService {
   public loadBaseRenderables(scene: Phaser.Scene): void {
     Object.keys(this.creatureIndex).forEach(creatureKey => {
       const creature = this.get(creatureKey);
-      this.loadTextures(scene, creature.textures);
-      this.loadAnimations(scene, creature.animations);
+      this.textureService.loadTextures(scene, creature.textures, this.pixelWidth, this.pixelHeight);
+      this.textureService.loadAnimations(scene, creature.animations);
     });
-  }
-
-  private loadTextures(scene: Phaser.Scene, textures: any[]): void {
-    textures.forEach(
-      texture => scene.textures.addCanvas(
-        texture.key,
-        this.textureService.generate(texture.data, this.pixelWidth, this.pixelHeight, texture.shadowColor)
-      )
-    );
-  }
-
-  private loadAnimations(scene: Phaser.Scene, animations: any[]): void {
-    animations.forEach(animation => scene.anims.create(animation));
   }
 }

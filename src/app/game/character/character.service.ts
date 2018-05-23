@@ -50,7 +50,7 @@ export class CharacterService {
     });
 
     const characterTextures = character.creatureConfig.textures.map(texture => {
-      let data = this.copyFrame(texture.data);
+      let data = this.copyTextureData(texture.data);
 
       Object.keys(equippedItems).forEach(itemGroupKey => {
         switch (itemGroupKey) {
@@ -86,24 +86,11 @@ export class CharacterService {
     character.animationsKeyMap = characterAnimationsKeyMap;
     character.defaultTexture = characterDefaultTexture;
 
-    this.loadTextures(scene, characterTextures);
-    this.loadAnimations(scene, characterAnimations);
+    this.textureService.loadTextures(scene, characterTextures, this.creatureService.pixelHeight, this.creatureService.pixelWidth);
+    this.textureService.loadAnimations(scene, characterAnimations);
   }
 
-  private copyFrame(frame: string[]): string[] {
-    return frame.map(row => row.slice());
-  }
-
-  private loadTextures(scene: Phaser.Scene, textures: any[]): void {
-    textures.forEach(
-      texture => scene.textures.addCanvas(
-        texture.key,
-        this.textureService.generate(texture.data, this.creatureService.pixelWidth, this.creatureService.pixelHeight, texture.shadowColor)
-      )
-    );
-  }
-
-  private loadAnimations(scene: Phaser.Scene, animations: any[]): void {
-    animations.forEach(animation => scene.anims.create(animation));
+  private copyTextureData(data: string[]): string[] {
+    return data.map(row => row.slice());
   }
 }
