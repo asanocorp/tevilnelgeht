@@ -1,3 +1,3 @@
-import { footwear } from './footwear';
+import { feet } from './feet';
 
-export const equippable = { footwear };
+export const equippable = { feet };

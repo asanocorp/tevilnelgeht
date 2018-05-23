@@ -1,21 +1,28 @@
 import { CharacterData } from './character-manager';
 
 export class Character extends Phaser.GameObjects.PathFollower {
-  private animationsKeyMap;
+  public animationsKeyMap = {};
+
+  public texturesKeyMap = {};
+
+  public defaultTexture = '';
 
   public attachment: CharacterData;
 
   public constructor(
-    private creatureConfig: any,
-    private classConfig: any,
+    public creatureConfig: any,
+    public classConfig: any,
     scene: Phaser.Scene,
     path: Phaser.Curves.Path,
     x: number,
     y: number,
   ) {
     super(scene, path, x, y, creatureConfig.defaultTexture);
-    this.animationsKeyMap = {idle: "boots-human-idle", walkRight: "boots-human-walkRight", walkLeft: "boots-human-walkLeft"};
-    // { ...creatureConfig.animationsKeyMap };
+
+    this.animationsKeyMap = { ...creatureConfig.animationsKeyMap };
+    this.texturesKeyMap = { ...creatureConfig.texturesKeyMap };
+    this.defaultTexture = creatureConfig.defaultTexture;
+
     this.setOrigin(creatureConfig.origin.x, creatureConfig.origin.y);
   }
 

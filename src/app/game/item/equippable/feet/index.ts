@@ -1,7 +1,7 @@
 import * as boots from './boots';
 import { equipped } from './equipped';
 
-export const footwear = {
+export const feet = {
   boots,
   equipped
 };
