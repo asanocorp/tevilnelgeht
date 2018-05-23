@@ -30,6 +30,6 @@ export const sockets = {
   leftHand: [new Rect(10, 8, 2, 2)],
   rightLeg: [new Rect(3, 10, 2, 1), new Rect(2, 11, 2, 2)],
   leftLeg: [new Rect(7, 10, 2, 1), new Rect(8, 11, 2, 2)],
-  rightFoot: [new Rect(3, 13, 1, 1), new Rect(2, 14, 2, 1)],
+  rightFoot: [new Rect(2, 13, 1, 1), new Rect(1, 14, 2, 1)],
   leftFoot: [new Rect(9, 13, 1, 1), new Rect(9, 14, 2, 1)]
 };

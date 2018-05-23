@@ -12,20 +12,20 @@ import { human } from './human';
   providedIn: 'root'
 })
 export class CreatureService {
-  private readonly pixelWidth = CreatureDefinitions.pixelWidth;
+  private creatureIndex = { elf, dwarf, halfling, human };
 
-  private readonly pixelHeight = CreatureDefinitions.pixelHeight;
+  public readonly pixelWidth = CreatureDefinitions.pixelWidth;
 
-  private creaturesIndex = { elf, dwarf, halfling, human };
+  public readonly pixelHeight = CreatureDefinitions.pixelHeight;
 
   public constructor(private textureService: TextureService) { }
 
-  public get(creatureKey: string): any {
-    return this.creaturesIndex[creatureKey];
+  public get(creatureId: string): any {
+    return this.creatureIndex[creatureId];
   }
 
   public loadBaseRenderables(scene: Phaser.Scene): void {
-    Object.keys(this.creaturesIndex).forEach(creatureKey => {
+    Object.keys(this.creatureIndex).forEach(creatureKey => {
       const creature = this.get(creatureKey);
       this.loadTextures(scene, creature.textures);
       this.loadAnimations(scene, creature.animations);

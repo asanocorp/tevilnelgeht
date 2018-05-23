@@ -19,7 +19,7 @@ export class MainScene extends Phaser.Scene {
     this.scene.add(level.sys.settings.key, level, false);
     this.scene.launch(level.sys.settings.key);
 
-    this.playerCharacter = this.characterService.generate('human', {}, this);
+    this.playerCharacter = this.characterService.generate('human', { classId: 'fighter', level: 1 }, this);
 
     level.attachPlayerCharacter(this.playerCharacter);
 

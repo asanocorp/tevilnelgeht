@@ -6,16 +6,17 @@ export class Character extends Phaser.GameObjects.PathFollower {
   public attachment: CharacterData;
 
   public constructor(
-    private creature: any,
+    private creatureConfig: any,
     private classConfig: any,
     scene: Phaser.Scene,
     path: Phaser.Curves.Path,
     x: number,
     y: number,
   ) {
-    super(scene, path, x, y, creature.defaultTexture);
-    this.animationsKeyMap = { ...creature.animationsKeyMap };
-    this.setOrigin(creature.origin.x, creature.origin.y);
+    super(scene, path, x, y, creatureConfig.defaultTexture);
+    this.animationsKeyMap = {idle: "boots-human-idle", walkRight: "boots-human-walkRight", walkLeft: "boots-human-walkLeft"};
+    // { ...creatureConfig.animationsKeyMap };
+    this.setOrigin(creatureConfig.origin.x, creatureConfig.origin.y);
   }
 
   public act(cost: (c) => void): Promise<void> {

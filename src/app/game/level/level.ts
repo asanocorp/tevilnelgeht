@@ -148,6 +148,7 @@ export class Level extends Phaser.Scene {
     // No pending move actions or path is blocked, perform character specific action.
     if (attachment.isPlayer) {
       this.isPlayerTurn = true;
+      console.log(attachment);
     } else {
       // Execute npc action...
     }

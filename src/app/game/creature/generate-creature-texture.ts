@@ -21,9 +21,9 @@ export function generateCreatureTexture(frame: any, rules: any): any {
     data.push('.'.repeat(frame.data[0].length + margins.left + margins.right));
   }
 
-  Object.keys(frame.sockets).forEach(
-    socketKey => frame.sockets[socketKey].map(rect => Rect.Clone(rect).setPosition(margins.left + rect.x, margins.top + rect.y))
-  );
+  Object.keys(frame.sockets).forEach(socketKey => {
+    sockets[socketKey] = frame.sockets[socketKey].map(rect => Rect.Clone(rect).setPosition(margins.left + rect.x, margins.top + rect.y));
+  });
 
   return { data, sockets, shadowColor };
 }

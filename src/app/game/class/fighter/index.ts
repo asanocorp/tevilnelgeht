@@ -1,3 +1,3 @@
 export const fighter = {
-  hitDie: '1d10'
+  hitDie: 10
 };
