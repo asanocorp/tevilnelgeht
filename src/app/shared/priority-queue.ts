@@ -1,11 +1,24 @@
+/**
+ * Priority queue.
+ */
 export class PriorityQueue<T> {
+  /**
+   * Item in queue with worst priority.
+   */
   private backItem: T;
 
+  /**
+   * Queue items (heap).
+   */
   private items: T[] = [];
 
-  public constructor(items?: T[], private comparator?: (a: T, b: T) => boolean) {
-    this.comparator = comparator || function comparator(a, b) { return a < b; };
-
+  /**
+   * Instantiate priority queue.
+   *
+   * @param items Initial queue items.
+   * @param comparator Comparator function; return true if the first parameter has a better priority than the second parameter.
+   */
+  public constructor(items?: T[], private comparator = (a: T, b: T) => a < b) {
     if (Array.isArray(items)) {
       if (items.length === 1) {
         this.backItem = items[0];
@@ -23,16 +36,25 @@ export class PriorityQueue<T> {
     }
   }
 
+  /**
+   * Peek at front (best priority) item.
+   */
   public peekFront(): T {
     this.throwErrorIfInvalidPosition(0);
     return this.items[0];
   }
 
+  /**
+   * Peek at back (worst priority) item.
+   */
   public peekBack(): T {
     this.throwErrorIfInvalidPosition(0);
     return this.backItem;
   }
 
+  /**
+   * Remove front (best priority) item from queue & return it.
+   */
   public pop(): T {
     this.throwErrorIfInvalidPosition(0);
 
@@ -55,7 +77,12 @@ export class PriorityQueue<T> {
     return item;
   }
 
-  public push(item): PriorityQueue<T> {
+  /**
+   * Add item to queue.
+   *
+   * @param item Item to be added to queue.
+   */
+  public push(item: T): PriorityQueue<T> {
     let ix = this.items.length;
     this.items.push(item);
     this.backItem = this.getRearMostItem(item, this.backItem);
@@ -77,19 +104,33 @@ export class PriorityQueue<T> {
     return this;
   }
 
+  /**
+   * Clear queue contents.
+   */
   public clear(): PriorityQueue<T> {
-    this.items = [];
+    this.items.length = 0;
     return this;
   }
 
+  /**
+   * Get queue size.
+   */
   public size(): number {
     return this.items.length;
   }
 
+  /**
+   * Test if queue is empty.
+   */
   public empty() {
     return this.size() === 0;
   }
 
+  /**
+   * Heapify array contents.
+   *
+   * @param items Array to be heapified.
+   */
   private heapify(items: T[]): PriorityQueue<T> {
     const size = items.length;
     for (let i = (size >> 1); i >= 0; i--) {
@@ -98,7 +139,13 @@ export class PriorityQueue<T> {
     return this;
   }
 
-  private getRearMostItem(a, b): T {
+  /**
+   * Get the item with the worst priority.
+   *
+   * @param a First item.
+   * @param b Second item.
+   */
+  private getRearMostItem(a: T, b: T): T {
     if (b === undefined) {
       return a;
     }
@@ -108,6 +155,11 @@ export class PriorityQueue<T> {
     return a;
   }
 
+  /**
+   * Percolate value at specified positon to its proper position (given its value).
+   *
+   * @param ix Heap position.
+   */
   private percolateDown(ix: number): PriorityQueue<T> {
     const size = this.items.length;
     const heapSize = size >>> 1;
@@ -137,12 +189,22 @@ export class PriorityQueue<T> {
     return this;
   }
 
+  /**
+   * Throw error if specified heap position is invalid.
+   *
+   * @param position Heap position.
+   */
   private throwErrorIfInvalidPosition(position: number): void {
     if (!this.isValidPosition(position)) {
       throw new RangeError('Invalid position: ' + position.toString());
     }
   }
 
+  /**
+   * Test if specified heap posisiton is valid.
+   *
+   * @param position Heap position.
+   */
   private isValidPosition(position: number): boolean {
     return 0 <= position && position < this.items.length;
   }

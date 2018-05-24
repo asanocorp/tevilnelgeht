@@ -1,3 +1,3 @@
-export const equippedColorPaletteIndex = 'B';
+export const equippedColorPaletteIndex = '6';
 
 export const key = 'boots';

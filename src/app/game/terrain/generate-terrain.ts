@@ -5,14 +5,14 @@ export function generateTerrain(data: any): any {
   const rules = {};
   const textures = [];
 
-  Object.keys(data).map(subTypeKey => {
-    defaultTexturesIndex[subTypeKey] = data[subTypeKey].defaultTexture;
-    rules[subTypeKey] = {
-      ...TerrainDefinitions.defaultValuesByTerrainType[data[subTypeKey].rules.terrainType].rules,
-      ...data[subTypeKey].rules
+  Object.keys(data).map(textureType => {
+    defaultTexturesIndex[textureType] = data[textureType].defaultTexture;
+    rules[textureType] = {
+      ...TerrainDefinitions.defaultValuesByTerrainType[data[textureType].rules.terrainType].rules,
+      ...data[textureType].rules
     };
-    Object.keys(data[subTypeKey].textures).map(textureKey => {
-      textures.push({ ...data[subTypeKey].textures[textureKey], key: textureKey });
+    Object.keys(data[textureType].textures).map(textureKey => {
+      textures.push({ ...data[textureType].textures[textureKey], key: textureKey });
     });
   });
 

@@ -5,9 +5,9 @@ import { wallBottomFace } from './wall-bottom-face';
 import { wallNoFace } from './wall-no-face';
 
 const data = {
-  [TerrainDefinitions.TerrainSubType.Floor]: floor,
-  [TerrainDefinitions.TerrainSubType.WallBottomFace]: wallBottomFace,
-  [TerrainDefinitions.TerrainSubType.WallNoFace]: wallNoFace
+  [TerrainDefinitions.TerrainTextureType.Floor]: floor,
+  [TerrainDefinitions.TerrainTextureType.WallBottomFace]: wallBottomFace,
+  [TerrainDefinitions.TerrainTextureType.WallNoFace]: wallNoFace
 };
 
 export const dungeon = generateTerrain(data);

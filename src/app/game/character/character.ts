@@ -1,9 +1,26 @@
 import { CharacterData } from './character-manager';
 
 export class Character extends Phaser.GameObjects.PathFollower {
-  public animationsKeyMap = {};
+  public readonly equipmentSlots = {
+    legs: undefined,
+    torso: undefined,
+    neck: undefined,
+    head: undefined,
+    shoulders: undefined,
+    waist: undefined,
+    hands: undefined,
+    rightFinger: undefined,
+    leftFinger: undefined,
+    feet: undefined,
+    rightActive: undefined,
+    leftActive: undefined
+  };
 
-  public texturesKeyMap = {};
+  public readonly inventory = [];
+
+  public animationsKeyMap;
+
+  public texturesKeyMap;
 
   public defaultTexture = '';
 

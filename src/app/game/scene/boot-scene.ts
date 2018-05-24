@@ -1,61 +1,61 @@
 import { Injectable } from '@angular/core';
 
 import { environment } from '../../../environments/environment';
+
 import { CreatureService } from '../creature/creature.service';
 import { TerrainService } from '../terrain/terrain.service';
 
+/**
+ * Boot scene. Responsible for loading game resources & splash image display.
+ */
 @Injectable({
   providedIn: 'root'
 })
 export class BootScene extends Phaser.Scene {
+  /**
+   * Instantiate boot scene.
+   *
+   * @param creatureService Creature service; load base renderables.
+   * @param terrainService Terrain service; load terrain tileset.
+   */
   public constructor(private creatureService: CreatureService, private terrainService: TerrainService) {
     super({ key: 'Boot' });
   }
 
+  /**
+   * Load game resources.
+   */
   public preload(): void {
     this.creatureService.loadBaseRenderables(this);
     this.terrainService.loadTerrainTileset(this);
   }
 
+  /**
+   * Called once game resources are loaded. Display prompt to begin user initiated interaction.
+   */
   public create(): void {
     this.splashFadeOut();
 
-    this.time.delayedCall(
-      1500,
-      () => {
-        const title = this.add.text(
-          0,
-          0,
-          environment.title + '\nv' + environment.version,
-          { fontSize: '24px', fontFamily: 'Palatino Linotype', color: '#ddd', align: 'center' }
-        );
-        title.setOrigin(0.5);
+    const textConfig = { fontSize: '20px', fontFamily: 'Palatino Linotype', color: '#ffd700', align: 'center' };
+    const text = this.add.text(0, 0, 'Click to Start', textConfig);
 
-        const text = this.add.text(
-          0,
-          150,
-          'Click to Start',
-          { fontSize: '20px', fontFamily: 'Palatino Linotype', color: '#ffd700', align: 'center' }
-        );
-        text.setOrigin(0.5);
+    const textBlink = () => {
+      text.setVisible(!text.visible);
+      this.time.delayedCall(1000, textBlink, undefined, undefined);
+    };
 
-        const textBlink = () => {
-          text.setVisible(!text.visible);
-          this.time.delayedCall(1000, textBlink, undefined, undefined);
-        };
+    text.setOrigin(0.5);
+    this.cameras.main.startFollow(text, false);
+    textBlink();
 
-        this.cameras.main.startFollow(title, false);
-        textBlink();
-
-        this.input.once('pointerdown', () => {
-          this.scene.start('Main');
-        });
-      },
-      undefined,
-      undefined
-    );
+    this.input.once('pointerdown', () => {
+      this.scene.start('Main');
+    });
   }
 
+  /**
+   * Fade out the splash image.
+   */
   private splashFadeOut(): void {
     const duration = 1000;
     const beginOpacity = 0.9;

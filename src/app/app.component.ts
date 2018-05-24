@@ -1,7 +1,9 @@
 import { Component, HostListener } from '@angular/core';
 
 import { environment } from '../environments/environment';
+
 import { SceneService } from './game/scene/scene.service';
+
 
 /**
  * Application component.

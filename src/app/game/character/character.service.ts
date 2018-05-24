@@ -18,29 +18,28 @@ export class CharacterService {
     private itemService: ItemService
   ) { }
 
-  public generate(creatureId: string, classConfig: ClassConfig, scene: Phaser.Scene): Character {
+  public generate(creatureId: string, classConfig: ClassConfig, inventoryConfig: any, scene: Phaser.Scene): Character {
     const creatureConfig = this.creatureService.get(creatureId);
 
     classConfig = { ...this.classService.get(classConfig.classId), ...classConfig };
 
     const character = new Character(creatureConfig, classConfig, scene, new Phaser.Curves.Path(), 0, 0);
+
+    inventoryConfig.forEach(item => {
+      if (item.equipped) {
+        character.equipmentSlots[item.equipped] = this.itemService.getEquippableItemGroup(item.equipped)[item.key];
+      } else {
+        character.inventory.push(item);
+      }
+    });
+
     this.buildRenderables(character, scene);
 
     return character;
   }
 
   public buildRenderables(character: Character, scene: Phaser.Scene): void {
-    const equippedItems = {
-      legs: undefined,
-      feet: this.itemService.getEquippableItemGroup('feet').boots,
-      torso: undefined,
-      arms: undefined,
-      hands: undefined,
-      fingers: undefined,
-      shoulders: undefined,
-      neck: undefined,
-      head: undefined
-    };
+    const equippedItems = character.equipmentSlots;
 
     let keyPrefix = '';
     Object.keys(equippedItems).forEach(slot => {
@@ -49,16 +48,19 @@ export class CharacterService {
       }
     });
 
+    if (!keyPrefix) {
+      return;
+    }
+
     const characterTextures = character.creatureConfig.textures.map(texture => {
       let data = this.copyTextureData(texture.data);
 
       Object.keys(equippedItems).forEach(itemGroupKey => {
-        switch (itemGroupKey) {
-          case 'feet':
-            data = this.itemService.getEquippableItemGroup(itemGroupKey).equipped(equippedItems[itemGroupKey], data, texture.sockets);
-            break;
-          default:
-            break;
+        const item = equippedItems[itemGroupKey];
+
+        if (item) {
+          item.groupKey = itemGroupKey;
+          data = this.itemService.getEquippableItemGroup(itemGroupKey).equipped(item, data, texture.sockets);
         }
       });
 

@@ -47,11 +47,11 @@ export class LevelService {
     const height = 9;
 
     const terrainCategory = this.terrainService.TerrainCategory.Dungeon;
-    const terrainSubTypes = this.terrainService.TerrainSubType;
+    const terrainTextureTypes = this.terrainService.TerrainTextureType;
 
-    const wallNoFaceRules = this.terrainService.getTerrainRules(terrainCategory, terrainSubTypes.WallNoFace);
-    const wallBottomFaceRules = this.terrainService.getTerrainRules(terrainCategory, terrainSubTypes.WallBottomFace);
-    const floorRules = this.terrainService.getTerrainRules(terrainCategory, terrainSubTypes.Floor);
+    const wallNoFaceRules = this.terrainService.getTerrainRules(terrainCategory, terrainTextureTypes.WallNoFace);
+    const wallBottomFaceRules = this.terrainService.getTerrainRules(terrainCategory, terrainTextureTypes.WallBottomFace);
+    const floorRules = this.terrainService.getTerrainRules(terrainCategory, terrainTextureTypes.Floor);
 
     const datamap = {};
 
@@ -75,14 +75,14 @@ export class LevelService {
     }
     datamap[(width - 1) + ',' + (height - 1)] = { terrainRules: wallNoFaceRules };
 
-    const wallNoFaceIndex = this.terrainService.getTileIndex(terrainCategory, this.terrainService.TerrainSubType.WallNoFace);
-    const wallBottomFaceIndex = this.terrainService.getTileIndex(terrainCategory, this.terrainService.TerrainSubType.WallBottomFace);
-    const floorIndex = this.terrainService.getTileIndex(terrainCategory, this.terrainService.TerrainSubType.Floor);
+    const wallNoFaceIndex = this.terrainService.getTilesetIndex(terrainCategory, this.terrainService.TerrainTextureType.WallNoFace);
+    const wallBottomFaceIndex = this.terrainService.getTilesetIndex(terrainCategory, this.terrainService.TerrainTextureType.WallBottomFace);
+    const floorIndex = this.terrainService.getTilesetIndex(terrainCategory, this.terrainService.TerrainTextureType.Floor);
 
     const tilesetIndex = {
-      [this.terrainService.TerrainSubType.WallNoFace]: wallNoFaceIndex,
-      [this.terrainService.TerrainSubType.WallBottomFace]: wallBottomFaceIndex,
-      [this.terrainService.TerrainSubType.Floor]: floorIndex
+      [this.terrainService.TerrainTextureType.WallNoFace]: wallNoFaceIndex,
+      [this.terrainService.TerrainTextureType.WallBottomFace]: wallBottomFaceIndex,
+      [this.terrainService.TerrainTextureType.Floor]: floorIndex
     };
 
     return {

@@ -148,7 +148,6 @@ export class Level extends Phaser.Scene {
     // No pending move actions or path is blocked, perform character specific action.
     if (attachment.isPlayer) {
       this.isPlayerTurn = true;
-      console.log(attachment);
     } else {
       // Execute npc action...
     }
@@ -190,7 +189,7 @@ export class Level extends Phaser.Scene {
 
     Object.keys(datamap).map(index => {
       const [x, y] = index.split(',').map(c => Number.parseInt(c));
-      this.tilemap.putTileAt(tilesetIndex[datamap[index].terrainRules.terrainSubType], x, y);
+      this.tilemap.putTileAt(tilesetIndex[datamap[index].terrainRules.terrainTextureType], x, y);
     });
   }
 
