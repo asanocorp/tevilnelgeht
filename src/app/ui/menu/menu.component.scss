@@ -1,0 +1,16 @@
+@import '../../../styles/variables';
+.menu {
+  .menu-items {
+    .menu-item {
+      cursor: pointer;
+      &.selected {
+        border: 1px solid $accent-color;
+        color: $accent-color;
+      }
+      &.disabled {
+        color: $grey-color;
+        cursor: default;
+      }
+    }
+  }
+}

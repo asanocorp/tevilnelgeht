@@ -1,0 +1,204 @@
+@import 'theme'; // For primary, accent, warn, background, & foreground colors.
+
+////////////////////////////////////////////////////////////////////////////////
+// Colors
+////////////////////////////////////////////////////////////////////////////////
+
+// Red
+$red-color:                mat-color(mat-palette($mat-red), default);
+$red-contrast-color:       mat-color(mat-palette($mat-red), default-contrast);
+$red-light-color:          mat-color(mat-palette($mat-red), lighter);
+$red-light-contrast-color: mat-color(mat-palette($mat-red), lighter-contrast);
+$red-dark-color:           mat-color(mat-palette($mat-red), darker);
+$red-dark-contrast-color:  mat-color(mat-palette($mat-red), darker-contrast);
+
+// Pink
+$pink-color:                mat-color(mat-palette($mat-pink), default);
+$pink-contrast-color:       mat-color(mat-palette($mat-pink), default-contrast);
+$pink-light-color:          mat-color(mat-palette($mat-pink), lighter);
+$pink-light-contrast-color: mat-color(mat-palette($mat-pink), lighter-contrast);
+$pink-dark-color:           mat-color(mat-palette($mat-pink), darker);
+$pink-dark-contrast-color:  mat-color(mat-palette($mat-pink), darker-contrast);
+
+// Purple
+$purple-color:                mat-color(mat-palette($mat-purple), default);
+$purple-contrast-color:       mat-color(mat-palette($mat-purple), default-contrast);
+$purple-light-color:          mat-color(mat-palette($mat-purple), lighter);
+$purple-light-contrast-color: mat-color(mat-palette($mat-purple), lighter-contrast);
+$purple-dark-color:           mat-color(mat-palette($mat-purple), darker);
+$purple-dark-contrast-color:  mat-color(mat-palette($mat-purple), darker-contrast);
+
+// Deep Purple
+$deep-purple-color:                mat-color(mat-palette($mat-deep-purple), default);
+$deep-purple-contrast-color:       mat-color(mat-palette($mat-deep-purple), default-contrast);
+$deep-purple-light-color:          mat-color(mat-palette($mat-deep-purple), lighter);
+$deep-purple-light-contrast-color: mat-color(mat-palette($mat-deep-purple), lighter-contrast);
+$deep-purple-dark-color:           mat-color(mat-palette($mat-deep-purple), darker);
+$deep-purple-dark-contrast-color:  mat-color(mat-palette($mat-deep-purple), darker-contrast);
+
+// Indigo
+$indigo-color:                mat-color(mat-palette($mat-indigo), default);
+$indigo-contrast-color:       mat-color(mat-palette($mat-indigo), default-contrast);
+$indigo-light-color:          mat-color(mat-palette($mat-indigo), lighter);
+$indigo-light-contrast-color: mat-color(mat-palette($mat-indigo), lighter-contrast);
+$indigo-dark-color:           mat-color(mat-palette($mat-indigo), darker);
+$indigo-dark-contrast-color:  mat-color(mat-palette($mat-indigo), darker-contrast);
+
+// Blue
+$blue-color:                mat-color(mat-palette($mat-blue), default);
+$blue-contrast-color:       mat-color(mat-palette($mat-blue), default-contrast);
+$blue-light-color:          mat-color(mat-palette($mat-blue), lighter);
+$blue-light-contrast-color: mat-color(mat-palette($mat-blue), lighter-contrast);
+$blue-dark-color:           mat-color(mat-palette($mat-blue), darker);
+$blue-dark-contrast-color:  mat-color(mat-palette($mat-blue), darker-contrast);
+
+// Light Blue
+$light-blue-color:                mat-color(mat-palette($mat-light-blue), default);
+$light-blue-contrast-color:       mat-color(mat-palette($mat-light-blue), default-contrast);
+$light-blue-light-color:          mat-color(mat-palette($mat-light-blue), lighter);
+$light-blue-light-contrast-color: mat-color(mat-palette($mat-light-blue), lighter-contrast);
+$light-blue-dark-color:           mat-color(mat-palette($mat-light-blue), darker);
+$light-blue-dark-contrast-color:  mat-color(mat-palette($mat-light-blue), darker-contrast);
+
+// Cyan
+$cyan-color:                mat-color(mat-palette($mat-cyan), default);
+$cyan-contrast-color:       mat-color(mat-palette($mat-cyan), default-contrast);
+$cyan-light-color:          mat-color(mat-palette($mat-cyan), lighter);
+$cyan-light-contrast-color: mat-color(mat-palette($mat-cyan), lighter-contrast);
+$cyan-dark-color:           mat-color(mat-palette($mat-cyan), darker);
+$cyan-dark-contrast-color:  mat-color(mat-palette($mat-cyan), darker-contrast);
+
+// Teal
+$teal-color:                mat-color(mat-palette($mat-teal), default);
+$teal-contrast-color:       mat-color(mat-palette($mat-teal), default-contrast);
+$teal-light-color:          mat-color(mat-palette($mat-teal), lighter);
+$teal-light-contrast-color: mat-color(mat-palette($mat-teal), lighter-contrast);
+$teal-dark-color:           mat-color(mat-palette($mat-teal), darker);
+$teal-dark-contrast-color:  mat-color(mat-palette($mat-teal), darker-contrast);
+
+// Green
+$green-color:                mat-color(mat-palette($mat-green), default);
+$green-contrast-color:       mat-color(mat-palette($mat-green), default-contrast);
+$green-light-color:          mat-color(mat-palette($mat-green), lighter);
+$green-light-contrast-color: mat-color(mat-palette($mat-green), lighter-contrast);
+$green-dark-color:           mat-color(mat-palette($mat-green), darker);
+$green-dark-contrast-color:  mat-color(mat-palette($mat-green), darker-contrast);
+
+// Light Green
+$light-green-color:                mat-color(mat-palette($mat-light-green), default);
+$light-green-contrast-color:       mat-color(mat-palette($mat-light-green), default-contrast);
+$light-green-light-color:          mat-color(mat-palette($mat-light-green), lighter);
+$light-green-light-contrast-color: mat-color(mat-palette($mat-light-green), lighter-contrast);
+$light-green-dark-color:           mat-color(mat-palette($mat-light-green), darker);
+$light-green-dark-contrast-color:  mat-color(mat-palette($mat-light-green), darker-contrast);
+
+// Lime
+$lime-color:                mat-color(mat-palette($mat-lime), default);
+$lime-contrast-color:       mat-color(mat-palette($mat-lime), default-contrast);
+$lime-light-color:          mat-color(mat-palette($mat-lime), lighter);
+$lime-light-contrast-color: mat-color(mat-palette($mat-lime), lighter-contrast);
+$lime-dark-color:           mat-color(mat-palette($mat-lime), darker);
+$lime-dark-contrast-color:  mat-color(mat-palette($mat-lime), darker-contrast);
+
+// Yellow
+$yellow-color:                mat-color(mat-palette($mat-yellow), default);
+$yellow-contrast-color:       mat-color(mat-palette($mat-yellow), default-contrast);
+$yellow-light-color:          mat-color(mat-palette($mat-yellow), lighter);
+$yellow-light-contrast-color: mat-color(mat-palette($mat-yellow), lighter-contrast);
+$yellow-dark-color:           mat-color(mat-palette($mat-yellow), darker);
+$yellow-dark-contrast-color:  mat-color(mat-palette($mat-yellow), darker-contrast);
+
+// Amber
+$amber-color:                mat-color(mat-palette($mat-amber), default);
+$amber-contrast-color:       mat-color(mat-palette($mat-amber), default-contrast);
+$amber-light-color:          mat-color(mat-palette($mat-amber), lighter);
+$amber-light-contrast-color: mat-color(mat-palette($mat-amber), lighter-contrast);
+$amber-dark-color:           mat-color(mat-palette($mat-amber), darker);
+$amber-dark-contrast-color:  mat-color(mat-palette($mat-amber), darker-contrast);
+
+// Orange
+$orange-color:                mat-color(mat-palette($mat-orange), default);
+$orange-contrast-color:       mat-color(mat-palette($mat-orange), default-contrast);
+$orange-light-color:          mat-color(mat-palette($mat-orange), lighter);
+$orange-light-contrast-color: mat-color(mat-palette($mat-orange), lighter-contrast);
+$orange-dark-color:           mat-color(mat-palette($mat-orange), darker);
+$orange-dark-contrast-color:  mat-color(mat-palette($mat-orange), darker-contrast);
+
+// Deep Orange
+$deep-orange-color:                mat-color(mat-palette($mat-deep-orange), default);
+$deep-orange-contrast-color:       mat-color(mat-palette($mat-deep-orange), default-contrast);
+$deep-orange-light-color:          mat-color(mat-palette($mat-deep-orange), lighter);
+$deep-orange-light-contrast-color: mat-color(mat-palette($mat-deep-orange), lighter-contrast);
+$deep-orange-dark-color:           mat-color(mat-palette($mat-deep-orange), darker);
+$deep-orange-dark-contrast-color:  mat-color(mat-palette($mat-deep-orange), darker-contrast);
+
+// Brown
+$brown-color:                mat-color(mat-palette($mat-brown), default);
+$brown-contrast-color:       mat-color(mat-palette($mat-brown), default-contrast);
+$brown-light-color:          mat-color(mat-palette($mat-brown), lighter);
+$brown-light-contrast-color: mat-color(mat-palette($mat-brown), lighter-contrast);
+$brown-dark-color:           mat-color(mat-palette($mat-brown), darker);
+$brown-dark-contrast-color:  mat-color(mat-palette($mat-brown), darker-contrast);
+
+// Grey
+$grey-color:                mat-color(mat-palette($mat-grey), default);
+$grey-contrast-color:       mat-color(mat-palette($mat-grey), default-contrast);
+$grey-light-color:          mat-color(mat-palette($mat-grey), lighter);
+$grey-light-contrast-color: mat-color(mat-palette($mat-grey), lighter-contrast);
+$grey-dark-color:           mat-color(mat-palette($mat-grey), darker);
+$grey-dark-contrast-color:  mat-color(mat-palette($mat-grey), darker-contrast);
+
+// Blue Grey
+$blue-grey-color:                mat-color(mat-palette($mat-blue-grey), default);
+$blue-grey-contrast-color:       mat-color(mat-palette($mat-blue-grey), default-contrast);
+$blue-grey-light-color:          mat-color(mat-palette($mat-blue-grey), lighter);
+$blue-grey-light-contrast-color: mat-color(mat-palette($mat-blue-grey), lighter-contrast);
+$blue-grey-dark-color:           mat-color(mat-palette($mat-blue-grey), darker);
+$blue-grey-dark-contrast-color:  mat-color(mat-palette($mat-blue-grey), darker-contrast);
+
+// Primary
+$primary-color:                mat-color(map-get($theme, primary), default);
+$primary-contrast-color:       mat-color(map-get($theme, primary), default-contrast);
+$primary-light-color:          mat-color(map-get($theme, primary), lighter);
+$primary-light-contrast-color: mat-color(map-get($theme, primary), lighter-contrast);
+$primary-dark-color:           mat-color(map-get($theme, primary), darker);
+$primary-dark-contrast-color:  mat-color(map-get($theme, primary), darker-contrast);
+
+// Accent
+$accent-color:                mat-color(map-get($theme, accent), default);
+$accent-contrast-color:       mat-color(map-get($theme, accent), default-contrast);
+$accent-light-color:          mat-color(map-get($theme, accent), lighter);
+$accent-light-contrast-color: mat-color(map-get($theme, accent), lighter-contrast);
+$accent-dark-color:           mat-color(map-get($theme, accent), darker);
+$accent-dark-contrast-color:  mat-color(map-get($theme, accent), darker-contrast);
+
+// Warn
+$warn-color:                mat-color(map-get($theme, warn), default);
+$warn-contrast-color:       mat-color(map-get($theme, warn), default-contrast);
+$warn-light-color:          mat-color(map-get($theme, warn), lighter);
+$warn-light-contrast-color: mat-color(map-get($theme, warn), lighter-contrast);
+$warn-dark-color:           mat-color(map-get($theme, warn), darker);
+$warn-dark-contrast-color:  mat-color(map-get($theme, warn), darker-contrast);
+
+// Backgrounds
+$background-color:                 map-get(map-get($theme, background), background);
+$background-status-bar-color:      map-get(map-get($theme, background), status-bar);
+$background-app-bar-color:         map-get(map-get($theme, background), app-bar);
+$background-hover-color:           map-get(map-get($theme, background), hover);
+$background-card-color:            map-get(map-get($theme, background), card);
+$background-dialog-color:          map-get(map-get($theme, background), dialog);
+$background-disabled-button-color: map-get(map-get($theme, background), disabled-button);
+$background-raised-button-color:   map-get(map-get($theme, background), raised-button);
+
+// Foregrounds
+$foreground-color:                 map-get(map-get($theme, foreground), base);
+$foreground-divider-color:         map-get(map-get($theme, foreground), divider);
+$foreground-dividers-color:        map-get(map-get($theme, foreground), dividers);
+$foreground-disabled-color:        map-get(map-get($theme, foreground), disabled);
+$foreground-disabled-button-color: map-get(map-get($theme, foreground), disabled-button);
+$foreground-disabled-text-color:   map-get(map-get($theme, foreground), disabled-text);
+$foreground-hint-text-color:       map-get(map-get($theme, foreground), hint-text);
+$foreground-secondary-text-color:  map-get(map-get($theme, foreground), secondary-text);
+$foreground-icon-color:            map-get(map-get($theme, foreground), icon);
+$foreground-icons-color:           map-get(map-get($theme, foreground), icons);
+$foreground-text-color:            map-get(map-get($theme, foreground), text);

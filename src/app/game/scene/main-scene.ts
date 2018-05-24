@@ -1,8 +1,11 @@
 import { Injectable } from '@angular/core';
 
+import {ModalService} from '../../ui/modal/modal.service';
+
 import { Character } from '../character/character';
 import { CharacterService } from '../character/character.service';
 import { LevelService } from '../level/level.service';
+import { MainMenuComponent } from '../ui/main-menu/main-menu.component';
 
 /**
  * Main scene. Root host for game play functionality.
@@ -22,7 +25,7 @@ export class MainScene extends Phaser.Scene {
    * @param characterService Character service.
    * @param levelService Level service.
    */
-  public constructor(private characterService: CharacterService, private levelService: LevelService) {
+  public constructor(private characterService: CharacterService, private levelService: LevelService, private modalService: ModalService) {
     super({ key: 'Main' });
   }
 
@@ -30,6 +33,10 @@ export class MainScene extends Phaser.Scene {
    * Create & display main game play components; begin game.
    */
   public create(): void {
+    this.modalService.transitionUi('main-menu', MainMenuComponent);
+  }
+
+  public playTest(): void {
     const level = this.levelService.load('dungeon');
     this.scene.add(level.sys.settings.key, level, false);
     this.scene.launch(level.sys.settings.key);

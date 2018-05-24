@@ -1,0 +1,12 @@
+<mat-card [ngClass]="'menu'">
+  <mat-card-title *ngIf="title;">{{title}}</mat-card-title>
+  <mat-card-content>
+    <mat-list [ngClass]="'menu-items'">
+      <mat-list-item *ngFor="let item of menuItems; let ix = index;" [ngClass]="{'menu-item': true, 'disabled': item.disabled, 'selected': item.selected}"
+        (mouseover)="handleInput($event, ix)" (click)="handleInput($event, ix)">
+        <span *ngIf="item.icon;">
+          <mat-icon>{{item.icon}}</mat-icon>&nbsp;</span> {{item.title}}
+      </mat-list-item>
+    </mat-list>
+  </mat-card-content>
+</mat-card>

@@ -1,0 +1,5 @@
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+@import 'variables';
+
+@include mat-core(); // Include common styles for Angular Material.
+@include angular-material-theme($theme); // Include theme styles.

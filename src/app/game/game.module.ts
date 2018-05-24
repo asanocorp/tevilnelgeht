@@ -8,12 +8,13 @@ import { LevelModule } from './level/level.module';
 import { SceneModule } from './scene/scene.module';
 import { TerrainModule } from './terrain/terrain.module';
 import { TextureModule } from './texture/texture.module';
+import { UiModule } from './ui/ui.module';
 
 
 /**
  * Game module.
  */
 @NgModule({
-  imports: [ClassModule, CreatureModule, CharacterModule, LevelModule, SceneModule, TerrainModule, TextureModule],
+  imports: [ClassModule, CreatureModule, CharacterModule, LevelModule, SceneModule, TerrainModule, TextureModule, UiModule],
 })
 export class GameModule { }

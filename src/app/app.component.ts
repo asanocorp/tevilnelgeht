@@ -3,7 +3,7 @@ import { Component, HostListener } from '@angular/core';
 import { environment } from '../environments/environment';
 
 import { SceneService } from './game/scene/scene.service';
-
+import { ModalService } from './ui/modal/modal.service';
 
 /**
  * Application component.
@@ -13,6 +13,7 @@ import { SceneService } from './game/scene/scene.service';
   template: `
     <div id="splash" class="splash"><div id="loadStatus"></div></div>
     <phaser-component [gameConfig]="gameConfig" (gameReady)="onGameReady($event)"></phaser-component>
+    <ui-modal></ui-modal>
   `,
   styles: [
     `#loadStatus {
@@ -46,7 +47,7 @@ export class AppComponent {
   /**
    * Instantiate application component.
    */
-  public constructor(private sceneService: SceneService) { }
+  public constructor(private sceneService: SceneService, private modalService: ModalService) { }
 
   /**
    * Game ready event handler.
@@ -55,6 +56,7 @@ export class AppComponent {
    */
   public onGameReady(game: Phaser.Game): void {
     this.game = game;
+    this.modalService.game = game;
 
     // Add scenes to game & start inital scene.
     this.sceneService.scenes.forEach((scene) => game.scene.add(scene.sys.config['key'], scene));

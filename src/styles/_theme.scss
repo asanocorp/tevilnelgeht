@@ -1,0 +1,3 @@
+@import '~@angular/material/theming';
+
+$theme: mat-dark-theme(mat-palette($mat-purple), mat-palette($mat-green));
