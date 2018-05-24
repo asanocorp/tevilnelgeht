@@ -8,6 +8,8 @@ import { AppComponent } from '../app.component';
 import { GameModule } from '../game/game.module';
 import { UiModule } from '../ui/ui.module';
 
+import { StoreService } from './store.service';
+
 const coreModules = [BrowserModule, BrowserAnimationsModule, PhaserModule, GameModule, UiModule];
 
 /**
@@ -16,6 +18,7 @@ const coreModules = [BrowserModule, BrowserAnimationsModule, PhaserModule, GameM
 @NgModule({
   declarations: [AppComponent],
   imports: coreModules,
-  exports: coreModules
+  exports: coreModules,
+  providers: [StoreService]
 })
 export class CoreModule { }

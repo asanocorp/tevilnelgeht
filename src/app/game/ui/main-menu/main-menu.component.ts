@@ -3,6 +3,7 @@ import { MatDialog } from '@angular/material';
 
 import { Subscription } from 'rxjs';
 
+import { StoreService } from '../../../core/store.service';
 import { MenuItems } from '../../../ui/menu/menu.component';
 import { UiTransition, uiTransitionInjectionToken } from '../../../ui/ui-transition';
 
@@ -45,8 +46,13 @@ export class MainMenuComponent implements OnDestroy {
    */
   public constructor(
     @Inject(uiTransitionInjectionToken) private uiTransitionService: UiTransition,
-    private matDialog: MatDialog
-  ) { }
+    private matDialog: MatDialog,
+    private storeService: StoreService
+  ) {
+    if (!this.storeService.get('continueGame', false)) {
+      this.continueGameMenuItem.disabled = true;
+    }
+  }
 
   /**
    * Lifecycle hook that is called when a directive, pipe or service is destroyed.
@@ -83,6 +89,7 @@ export class MainMenuComponent implements OnDestroy {
    * Play game.
    */
   private playGame(): void {
+    this.storeService.set('continueGame', true);
     this.uiTransitionService.deactivate();
     (this.uiTransitionService.game.scene.getScene('Main') as any).playTest();
   }

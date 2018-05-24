@@ -115,16 +115,25 @@ export class Level extends Phaser.Scene {
   }
 
   private startCharacterTurn(attachment: CharacterData): void {
+    const moveActionManager = this.characterManager.getCharacterMoveActionManager(attachment);
+
     // Build character specific pathfinder grid.
     if (attachment.isPlayer) {
       this.pathfinderManager.buildTerrainAndCharacterGrid(this.characterManager.getNonPlayerCharacterPositions());
       this.playerCharacterPathGraphics.clear();
+
+      if (this.currentPointerTile && !moveActionManager.hasPending()) {
+        const path = this.getPlayerPath(this.currentPointerTile);
+
+        if (path.length > 1) {
+          this.playerCharacterPathGraphics.drawPath(path);
+        }
+      }
     } else {
       this.pathfinderManager.buildTerrainAndCharacterGrid(this.characterManager.getCharacterPositions([attachment]));
     }
 
     // Resolve any pending move actions for character.
-    const moveActionManager = this.characterManager.getCharacterMoveActionManager(attachment);
     if (moveActionManager.hasPending()) {
       const actions = moveActionManager.getPending();
 
@@ -197,14 +206,18 @@ export class Level extends Phaser.Scene {
     const playerAttachment = this.characterManager.getPlayerCharacterData();
     const moveActionManager = this.characterManager.getCharacterMoveActionManager(playerAttachment);
 
-    if (!this.isPlayerTurn || moveActionManager.hasPending()) {
+    /*if (!this.isPlayerTurn || moveActionManager.hasPending()) {
       return;
-    }
+    }*/
 
     const tile = this.getPointerTile(pointer);
 
     if (tile && this.currentPointerTile !== tile) {
       this.currentPointerTile = tile;
+
+      if (!this.isPlayerTurn || moveActionManager.hasPending()) {
+        return;
+      }
 
       this.playerCharacterPathGraphics.clear();
       const path = this.getPlayerPath(tile);
