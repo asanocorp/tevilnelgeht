@@ -51,9 +51,6 @@ export class DiceRollerService {
 
   public rollWithArgs(n: number, d: number, m = 0): number {
     if (this.mode === DiceRollerMode.Range) {
-      console.log(n);
-      console.log(d);
-      console.log(m);
       return this.rnd.integerInRange(n, n * d) + m;
     }
 
