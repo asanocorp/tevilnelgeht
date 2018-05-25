@@ -26,6 +26,19 @@ export class BootScene extends Phaser.Scene {
    * Load game resources.
    */
   public preload(): void {
+    const textConfig = { fontSize: '14px', fontFamily: 'Palatino Linotype', color: '#eee', align: 'center' };
+    const textZone = this.add.zone(0, 0, this.sys.game.renderer.width - 28, this.sys.game.renderer.height - 28);
+
+    Phaser.Display.Align.In.BottomLeft(
+      this.add.text(0, 0, environment.title + '\nv' + environment.version, textConfig),
+      textZone
+    );
+
+    Phaser.Display.Align.In.BottomRight(
+      this.add.text(0, 0, 'Copyright © 2018  Tristan Bonsor', textConfig),
+      textZone
+    );
+
     this.creatureService.loadBaseRenderables(this);
     this.terrainService.loadTerrainTileset(this);
   }
