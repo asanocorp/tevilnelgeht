@@ -24,6 +24,8 @@ export const sockets = {
   leftArm: [new Rect(8, 3, 1, 2)],
   rightHand: [new Rect(0, 5, 2, 2)],
   leftHand: [new Rect(8, 5, 2, 2)],
+  rightFinger: [new Rect(0, 6, 1, 1)],
+  leftFinger: [new Rect(9, 6, 1, 1)],
   rightLeg: [new Rect(2, 8, 2, 1)],
   leftLeg: [new Rect(6, 8, 2, 1)],
   rightFoot: [new Rect(2, 9, 1, 1), new Rect(1, 10, 2, 1)],
