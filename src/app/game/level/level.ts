@@ -160,6 +160,10 @@ export class Level extends Phaser.Scene {
 
     this.add.existing(sprite).setInteractive();
     this.scheduler.add(sprite);
+
+    if (attachment.isPlayer) {
+      this.cameras.main.startFollow(sprite, true);
+    }
   }
 
   /**
@@ -345,7 +349,7 @@ export class Level extends Phaser.Scene {
    * @param pointer Input pointer.
    */
   private getPointerTile(pointer): Phaser.Tilemaps.Tile {
-    const position = pointer.position;
+    const position = this.cameras.main.getWorldPoint(pointer.x, pointer.y);
     return this.tilemap.getTileAtWorldXY(position.x, position.y);
   }
 

@@ -87,12 +87,6 @@ export class MainScene extends Phaser.Scene {
 
     level.attachPlayerCharacter(this.playerCharacter);
 
-    const levelData = this.storeService.get('levelData_' + levelKey, undefined);
-
-    if (levelData) {
-
-    }
-
     // Attach player sprite input listeners...
 
     // Required so player sprite remains interactive when attached to a level.
