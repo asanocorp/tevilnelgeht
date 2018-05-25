@@ -105,5 +105,7 @@ export class MainMenuComponent implements OnDestroy {
   /**
    * Reset game state.
    */
-  private resetGame(): void { }
+  private resetGame(): void {
+    this.storeService.clearAll();
+  }
 }

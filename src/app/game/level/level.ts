@@ -1,36 +1,85 @@
+import { StoreService } from '../../core/store.service';
+
 import { Character } from '../character/character';
 import { CharacterData, CharacterManager } from '../character/character-manager';
 import { TerrainService } from '../terrain/terrain.service';
+
 import { LevelTemplate } from './level-template';
-import { PathfinderManager } from './pathfinder-manager';
 import { PathGraphics } from './path-graphics';
+import { PathfinderManager } from './pathfinder-manager';
 import { Scheduler } from './scheduler';
 
+
+/**
+ * Game level - display & data container for current game play.
+ */
 export class Level extends Phaser.Scene {
+  /**
+   * Level tilemap.
+   */
   private tilemap: Phaser.Tilemaps.Tilemap;
 
+  /**
+   * Tile that is currently under the pointer.
+   */
   private currentPointerTile: Phaser.Tilemaps.Tile;
 
+  /**
+   * Turn scheduler.
+   */
   private scheduler = new Scheduler();
 
+  /**
+   * Pathfinder manager.
+   */
   private pathfinderManager = new PathfinderManager();
 
+  /**
+   * Character manager.
+   */
   private characterManager = new CharacterManager();
 
+  /**
+   * Player turn flag.
+   */
   private isPlayerTurn = false;
 
+  /**
+   * Player path cache.
+   */
   private playerCharacterPathCache: { [key: string]: Phaser.Math.Vector2[] } = {};
 
+  /**
+   * Player path graphics.
+   */
   private playerCharacterPathGraphics: PathGraphics;
 
+  /**
+   * End current character's turn.
+   *
+   * @param actionCost Delay until character's next turn.
+   */
   private endCharacterTurn: (actionCost?: number) => void;
 
+  /**
+   * Start scheduler flag.
+   */
   private startScheduler = true;
 
-  public constructor(key: string, private template: LevelTemplate) {
+  /**
+   * Instantiate level.
+   *
+   * @param key Unique level identifier.
+   * @param template Data with which this level is built & displayed.
+   * @param storeService Store service.
+   */
+  public constructor(key: string, private template: LevelTemplate, private storeService: StoreService) {
     super({ key });
   }
 
+  /**
+   * Create the level once all systems are running.
+   */
   public create(): void {
     this.createTilemap();
 
@@ -41,6 +90,9 @@ export class Level extends Phaser.Scene {
     this.playerCharacterPathGraphics = new PathGraphics(this);
   }
 
+  /**
+   * Update the level based on any pending changes.
+   */
   public update(): void {
     this.characterManager.update(
       attachment => this.onCharacterAttachment(attachment),
@@ -53,14 +105,37 @@ export class Level extends Phaser.Scene {
     }
   }
 
+  /**
+   * Attach the player character to level.
+   *
+   * @param player Player character.
+   */
   public attachPlayerCharacter(player: Character): void {
-    this.characterManager.attachPlayerCharacter(player);
+    const levelData = this.storeService.get('levelData_' + this.sys.settings.key, {});
+    let position = new Phaser.Math.Vector2(4, 4);
+
+    if (levelData.pc && levelData.pc.pos) {
+      position = new Phaser.Math.Vector2(levelData.pc.pos.x, levelData.pc.pos.y);
+    }
+
+    this.characterManager.attachPlayerCharacter(player, position);
   }
 
+  /**
+   * Detach player character from level.
+   */
   public detachPlayerCharacter(): Character {
     return this.characterManager.detachPlayerCharacter();
   }
 
+  /**
+   * Get sprite origin placement position in world coordinates.
+   *
+   * @param tileX X coordinate of tile.
+   * @param tileY Y cooridinate of tile.
+   * @param offsetX Value in range [0,1] that interpolate's tile width.
+   * @param offsetY Value in range [0,1] that interpolate's tile height.
+   */
   public getPlacementXY(tileX: number, tileY: number, offsetX = 0.5, offsetY = 0.5): Phaser.Math.Vector2 {
     const position = this.tilemap.tileToWorldXY(tileX, tileY);
     const tile = this.tilemap.getTileAt(tileX, tileY);
@@ -68,6 +143,11 @@ export class Level extends Phaser.Scene {
     return position;
   }
 
+  /**
+   * Perform level hooks on character attachment.
+   *
+   * @param attachment Character attachment to level.
+   */
   private onCharacterAttachment(attachment): void {
     const sprite = attachment.sprite;
 
@@ -82,6 +162,11 @@ export class Level extends Phaser.Scene {
     this.scheduler.add(sprite);
   }
 
+  /**
+   * Perform level hooks on character detachment.
+   *
+   * @param attachment Character attachment to level.
+   */
   private onCharacterDetachment(attachment): void {
     const sprite = attachment.sprite;
 
@@ -92,9 +177,17 @@ export class Level extends Phaser.Scene {
     this.sys.updateList.remove(sprite);
   }
 
+  /**
+   * Listen & setup for character turn.
+   *
+   * @param character Character (PC or NPC).
+   * @param cost Callback that sets this character's delay until next turn.
+   * @param endTurn Callback that ends this character's turn.
+   */
   private characterTurnListener(character: Character, cost: (c?: number) => void, endTurn: () => void): void {
     const attachment = character.attachment;
 
+    // Set end turn method for current character turn.
     this.endCharacterTurn = (actionCost?: number) => {
       if (attachment.isPlayer) {
         this.isPlayerTurn = false;
@@ -106,6 +199,10 @@ export class Level extends Phaser.Scene {
     };
 
     if (attachment.isPlayer) {
+      // Save level state.
+      this.storeLevel();
+      this.storePlayer();
+
       // Start PC turn after pending character action animations are complete.
       this.characterManager.getCharacterActionAnimationManager().run(() => this.startCharacterTurn(attachment));
     } else {
@@ -114,20 +211,69 @@ export class Level extends Phaser.Scene {
     }
   }
 
+  private storePlayer(): void {
+    const pcData = this.characterManager.getPlayerCharacterData();
+    const creatureId = pcData.sprite.creatureConfig.rules.creatureId;
+    const classConfig = {
+      classId: pcData.sprite.classConfig.classId,
+      level: pcData.sprite.classConfig.level
+    };
+
+    const inventoryConfig = Object.keys(pcData.sprite.equipmentSlots)
+      .filter(slot => pcData.sprite.equipmentSlots[slot] !== undefined)
+      .map(slot => ({ equipped: slot, key: pcData.sprite.equipmentSlots[slot].key}))
+      .concat(pcData.sprite.inventory);
+
+    this.storeService.set('pcData', { creatureId, classConfig, inventoryConfig });
+  }
+
+  /**
+   * Store the level data.
+   */
+  private storeLevel(): void {
+    const key = this.sys.settings.key;
+    const pcData = this.characterManager.getPlayerCharacterData();
+
+    const levelData = {
+      pc: {
+        pos: { x: pcData.position.x, y: pcData.position.y }
+      },
+      npc: this.characterManager.getNonPlayerCharacterData().map(characterData => {
+        const creatureId = characterData.sprite.creatureConfig.rules.creatureId;
+        const classConfig = {
+          classId: characterData.sprite.classConfig.classId,
+          level: characterData.sprite.classConfig.level
+        };
+
+        const inventoryConfig = Object.keys(characterData.sprite.equipmentSlots)
+          .filter(slot => characterData.sprite.equipmentSlots[slot] !== undefined)
+          .map(slot => ({ equipped: slot, key: characterData.sprite.equipmentSlots[slot].key}))
+          .concat(characterData.sprite.inventory);
+
+        return { creatureId, classConfig, inventoryConfig };
+      })
+    };
+
+    this.storeService.set('currentLevel', key);
+    this.storeService.set('levelData_' + key, levelData);
+  }
+
+  /**
+   * Start character turn.
+   *
+   * @param attachment Character's level attachment.
+   */
   private startCharacterTurn(attachment: CharacterData): void {
     const moveActionManager = this.characterManager.getCharacterMoveActionManager(attachment);
 
     // Build character specific pathfinder grid.
     if (attachment.isPlayer) {
       this.pathfinderManager.buildTerrainAndCharacterGrid(this.characterManager.getNonPlayerCharacterPositions());
-      this.playerCharacterPathGraphics.clear();
 
       if (this.currentPointerTile && !moveActionManager.hasPending()) {
-        const path = this.getPlayerPath(this.currentPointerTile);
-
-        if (path.length > 1) {
-          this.playerCharacterPathGraphics.drawPath(path);
-        }
+        // Render updated path to from player to current pointer tile.
+        this.clearPlayerPath();
+        this.renderPlayerPath(this.getPlayerPath(this.currentPointerTile));
       }
     } else {
       this.pathfinderManager.buildTerrainAndCharacterGrid(this.characterManager.getCharacterPositions([attachment]));
@@ -135,13 +281,10 @@ export class Level extends Phaser.Scene {
 
     // Resolve any pending move actions for character.
     if (moveActionManager.hasPending()) {
-      const actions = moveActionManager.getPending();
-
       if (attachment.isPlayer) {
-        const path = actions.map(action => action.payload.from);
-        path.push(actions[actions.length - 1].payload.to);
-
-        this.playerCharacterPathGraphics.drawPath(path);
+        // Render updated pending player path.
+        this.clearPlayerPath();
+        this.renderPlayerPath(moveActionManager.getPendingPath());
       }
 
       if (moveActionManager.processNext(position => this.pathfinderManager.allowsMove(position))) {
@@ -162,6 +305,11 @@ export class Level extends Phaser.Scene {
     }
   }
 
+  /**
+   * Get player path to tile.
+   *
+   * @param tile Destination tile.
+   */
   private getPlayerPath(tile: Phaser.Tilemaps.Tile): Phaser.Math.Vector2[] {
     const index = tile.x + ',' + tile.y;
 
@@ -173,13 +321,41 @@ export class Level extends Phaser.Scene {
     return this.playerCharacterPathCache[index];
   }
 
+  /**
+   * Render the given player path.
+   *
+   * @param path Player path.
+   */
+  private renderPlayerPath(path: Phaser.Math.Vector2[]): void {
+    if (path.length > 1) {
+      this.playerCharacterPathGraphics.drawPath(path);
+    }
+  }
+
+  /**
+   * Clear the player path graphic.
+   */
+  private clearPlayerPath(): void {
+    this.playerCharacterPathGraphics.clear();
+  }
+
+  /**
+   * Get tile under pointer.
+   *
+   * @param pointer Input pointer.
+   */
   private getPointerTile(pointer): Phaser.Tilemaps.Tile {
     const position = pointer.position;
     return this.tilemap.getTileAtWorldXY(position.x, position.y);
   }
 
+  /**
+   * Create the level's tilemap from the level's template.
+   */
   private createTilemap(): void {
-    const { tileset, tilesetIndex, tileWidth, tileHeight, width, height, datamap  } = this.template;
+    const { tileset, tilesetIndex, tileWidth, tileHeight, width, height, datamap } = this.template;
+
+    // Make tilemap & main layer.
 
     this.tilemap = this.make.tilemap({ tileWidth, tileHeight, width, height });
 
@@ -192,23 +368,26 @@ export class Level extends Phaser.Scene {
       undefined
     );
 
+    // Setup main layer's input listeners.
     layer.setInteractive();
     layer.on('pointermove', pointer => this.tilemapPointerMoveListener(pointer));
     layer.on('pointerdown', pointer => this.tilemapPointerDownListener(pointer));
 
+    // Draw tiles.
     Object.keys(datamap).map(index => {
       const [x, y] = index.split(',').map(c => Number.parseInt(c));
       this.tilemap.putTileAt(tilesetIndex[datamap[index].terrainRules.terrainTextureType], x, y);
     });
   }
 
+  /**
+   * Tilemap pointer move listener.
+   *
+   * @param pointer Input pointer.
+   */
   private tilemapPointerMoveListener(pointer): void {
     const playerAttachment = this.characterManager.getPlayerCharacterData();
     const moveActionManager = this.characterManager.getCharacterMoveActionManager(playerAttachment);
-
-    /*if (!this.isPlayerTurn || moveActionManager.hasPending()) {
-      return;
-    }*/
 
     const tile = this.getPointerTile(pointer);
 
@@ -219,15 +398,18 @@ export class Level extends Phaser.Scene {
         return;
       }
 
-      this.playerCharacterPathGraphics.clear();
-      const path = this.getPlayerPath(tile);
+      // Player turn & no pending move actions.
 
-      if (path.length > 1) {
-        this.playerCharacterPathGraphics.drawPath(path);
-      }
+      this.clearPlayerPath();
+      this.renderPlayerPath(this.getPlayerPath(tile));
     }
   }
 
+  /**
+   * Tilemap pointer down listener.
+   *
+   * @param pointer Input pointer.
+   */
   private tilemapPointerDownListener(pointer): void {
     const playerAttachment = this.characterManager.getPlayerCharacterData();
     const moveActionManager = this.characterManager.getCharacterMoveActionManager(playerAttachment);
@@ -236,8 +418,7 @@ export class Level extends Phaser.Scene {
       return;
     }
 
-    const tile = this.getPointerTile(pointer);
-    const path = this.getPlayerPath(tile);
+    const path = this.getPlayerPath(this.getPointerTile(pointer));
 
     if (path.length > 1) {
       moveActionManager.add(playerAttachment, path);

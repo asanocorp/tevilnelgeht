@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
 
+import { StoreService } from '../../core/store.service';
+
 import { CharacterService } from '../character/character.service';
 import { TerrainService } from '../terrain/terrain.service';
 import { Level } from './level';
@@ -15,7 +17,11 @@ export class LevelService {
     dungeon: 'dungeon'
   };
 
-  public constructor(private characterService: CharacterService, private terrainService: TerrainService) { }
+  public constructor(
+    private characterService: CharacterService,
+    private terrainService: TerrainService,
+    private storeService: StoreService
+  ) { }
 
   public load(levelId: string): Level {
     return this.getLevel(levelId);
@@ -36,7 +42,7 @@ export class LevelService {
   private generateLevel(levelId: string): Level {
     switch (this.levelTemplate[levelId]) {
       case 'dungeon':
-        return new Level(levelId, this.generateDungeon());
+        return new Level(levelId, this.generateDungeon(), this.storeService);
       default:
         break;
     }

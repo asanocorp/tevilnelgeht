@@ -29,8 +29,10 @@ export class CharacterMoveActionManager {
     this.actions.length = 0;
   }
 
-  public getPending(): CharacterAction[] {
-    return this.actions;
+  public getPendingPath(): Phaser.Math.Vector2[] {
+    const path = this.actions.map(action => action.payload.from);
+    path.push(this.actions[this.actions.length - 1].payload.to);
+    return path;
   }
 
   public hasPending(): boolean {

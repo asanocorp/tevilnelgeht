@@ -24,8 +24,8 @@ export class CharacterManager {
 
   private characterMoveActionManagerMap = new Map<CharacterData, CharacterMoveActionManager>();
 
-  public attachPlayerCharacter(player: Character): void {
-    this.pendingCharacterAttachments.push({ sprite: player, position: new Phaser.Math.Vector2(4, 4), isPlayer: true });
+  public attachPlayerCharacter(player: Character, position: Phaser.Math.Vector2): void {
+    this.pendingCharacterAttachments.push({ sprite: player, position, isPlayer: true });
   }
 
   public detachPlayerCharacter(): Character {
@@ -54,8 +54,16 @@ export class CharacterManager {
     return this.nonPlayerCharacterAttachments.map(attachment => attachment.position.clone());
   }
 
+  public getNonPlayerCharacterData(): CharacterData[] {
+    return this.nonPlayerCharacterAttachments;
+  }
+
+  public getCharacterData(): CharacterData[] {
+    return [].concat([this.playerCharacterAttachment], this.nonPlayerCharacterAttachments);
+  }
+
   public getCharacterPositions(exclusions: CharacterData[] = []): Phaser.Math.Vector2[] {
-    let attachments = [].concat([this.playerCharacterAttachment], this.nonPlayerCharacterAttachments);
+    let attachments = this.getCharacterData();
     attachments = attachments.filter(attachment => !exclusions.includes(attachment));
     return attachments.map(attachment => attachment.position.clone());
   }
