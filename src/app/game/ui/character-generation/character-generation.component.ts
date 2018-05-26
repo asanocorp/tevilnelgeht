@@ -157,7 +157,7 @@ export class CharacterGenerationComponent implements OnInit {
 
   @ViewChildren(MatRadioGroup) private radioGroups: QueryList<MatRadioGroup>;
 
-  private selectedCreature: string;
+  public selectedCreature: string;
 
   private selectedClass: string;
 
