@@ -1,0 +1,37 @@
+<mat-card [ngClass]="'chargen'">
+  <mat-card-title *ngIf="title;">{{title}}</mat-card-title>
+  <mat-card-content>
+    <div class="abilities-list-container">
+      <h3>Abilities</h3>
+      <mat-list [ngClass]="'abilities-list'">
+        <mat-list-item *ngFor="let ability of abilities; let ix = index;" [ngClass]="">
+          {{ability.label}}
+          <span class="flex-filler"></span>
+          {{ability.score}}
+        </mat-list-item>
+      </mat-list>
+      <button mat-stroked-button (click)="rollScores()">
+        Re-Roll
+      </button>
+    </div>
+    <div class="creatures-list-container">
+      <h3>Creature</h3>
+      <mat-radio-group [ngClass]="'creatures-list'" [name]="'creature'" [labelPosition]="'before'" (change)="creatureChange($event)">
+        <mat-radio-button *ngFor="let creature of creatures; let ix = index;" [value]="creature.creatureId" [disabled]="creature.disabled">
+          {{creature.label}}
+        </mat-radio-button>
+      </mat-radio-group>
+    </div>
+    <div class="classes-list-container">
+      <h3>Class</h3>
+      <mat-radio-group [ngClass]="'classes-list'" [name]="'class'" [labelPosition]="'before'" (change)="classChange($event)" [disabled]="!selectedCreature">
+        <mat-radio-button *ngFor="let class of classes; let ix = index;" [value]="class.classId" [disabled]="class.disabled">
+          {{class.label}}
+        </mat-radio-button>
+      </mat-radio-group>
+    </div>
+    <button mat-stroked-button [disabled]="!isReady()" (click)="playGame($event)">
+        Accept
+    </button>
+  </mat-card-content>
+</mat-card>

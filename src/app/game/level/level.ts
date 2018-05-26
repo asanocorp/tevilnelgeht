@@ -2,6 +2,7 @@ import { StoreService } from '../../core/store.service';
 
 import { Character } from '../character/character';
 import { CharacterData, CharacterManager } from '../character/character-manager';
+import { StoreNamespace } from '../store-namespace.enum';
 import { TerrainService } from '../terrain/terrain.service';
 
 import { LevelTemplate } from './level-template';
@@ -111,7 +112,8 @@ export class Level extends Phaser.Scene {
    * @param player Player character.
    */
   public attachPlayerCharacter(player: Character): void {
-    const levelData = this.storeService.get('levelData_' + this.sys.settings.key, {});
+    const levelData = this.storeService.namespace(StoreNamespace.Level).namespace('levelData').get(this.sys.settings.key, {});
+
     let position = new Phaser.Math.Vector2(4, 4);
 
     if (levelData.pc && levelData.pc.pos) {
@@ -228,7 +230,10 @@ export class Level extends Phaser.Scene {
       .map(slot => ({ equipped: slot, key: pcData.sprite.equipmentSlots[slot].key}))
       .concat(pcData.sprite.inventory);
 
-    this.storeService.set('pcData', { creatureId, classConfig, inventoryConfig });
+    const playerCharacterStore = this.storeService.namespace(StoreNamespace.PlayerCharacter);
+    playerCharacterStore.set('creatureId', creatureId);
+    playerCharacterStore.set('classConfig', classConfig);
+    playerCharacterStore.set('inventoryConfig', inventoryConfig);
   }
 
   /**
@@ -258,8 +263,11 @@ export class Level extends Phaser.Scene {
       })
     };
 
-    this.storeService.set('currentLevel', key);
-    this.storeService.set('levelData_' + key, levelData);
+    const levelStore = this.storeService.namespace(StoreNamespace.Level);
+    levelStore.set('currentLevel', key);
+
+    const levelDataStore = levelStore.namespace('levelData');
+    levelDataStore.set(key, levelData);
   }
 
   /**

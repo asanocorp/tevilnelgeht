@@ -3,11 +3,13 @@ import { MatDialog } from '@angular/material';
 
 import { Subscription } from 'rxjs';
 
-import { StoreService } from '../../../core/store.service';
+import { StoreApi, StoreService } from '../../../core/store.service';
 import { MenuItems } from '../../../ui/menu/menu.component';
 import { UiTransition, uiTransitionInjectionToken } from '../../../ui/ui-transition';
 
+import { CharacterGenerationComponent } from '../character-generation/character-generation.component';
 import { ConfirmNewGameDialogComponent } from '../confirm-new-game-dialog/confirm-new-game-dialog.component';
+import { StoreNamespace } from '../../store-namespace.enum';
 
 @Component({
   selector: 'game-ui-main-menu',
@@ -18,7 +20,7 @@ export class MainMenuComponent implements OnDestroy {
   /**
    * Menu title.
    */
-  public readonly title = 'Tevelnelgeht';
+  public readonly title = 'Tevilnelgeht';
 
   /**
    * Menu items.
@@ -49,7 +51,7 @@ export class MainMenuComponent implements OnDestroy {
     private matDialog: MatDialog,
     private storeService: StoreService
   ) {
-    if (!this.storeService.get('continueGame', false)) {
+    if (!this.storeService.namespace(StoreNamespace.Level).get('currentLevel')) {
       this.continueGameMenuItem.disabled = true;
     }
   }
@@ -89,7 +91,6 @@ export class MainMenuComponent implements OnDestroy {
    * Play game.
    */
   private playGame(): void {
-    this.storeService.set('continueGame', true);
     this.uiTransitionService.deactivate();
     (this.uiTransitionService.game.scene.getScene('Main') as any).playTest();
   }
@@ -99,13 +100,14 @@ export class MainMenuComponent implements OnDestroy {
    */
   private proceedWithNewGame(): void {
     this.resetGame();
-    this.playGame();
+    this.uiTransitionService.transitionUi('chargen', CharacterGenerationComponent);
   }
 
   /**
    * Reset game state.
    */
   private resetGame(): void {
-    this.storeService.clearAll();
+    this.storeService.namespace(StoreNamespace.Level).clearAll();
+    this.storeService.namespace(StoreNamespace.PlayerCharacter).clearAll();
   }
 }

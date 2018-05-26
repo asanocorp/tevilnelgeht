@@ -7,6 +7,7 @@ import { ModalService } from '../../ui/modal/modal.service';
 import { Character } from '../character/character';
 import { CharacterService } from '../character/character.service';
 import { LevelService } from '../level/level.service';
+import { StoreNamespace } from '../store-namespace.enum';
 import { MainMenuComponent } from '../ui/main-menu/main-menu.component';
 
 /**
@@ -44,46 +45,18 @@ export class MainScene extends Phaser.Scene {
   }
 
   public playTest(): void {
-    const levelKey = this.storeService.get('currentLevel', 'dungeon');
+    const levelKey = this.storeService.namespace(StoreNamespace.Level).get('currentLevel', 'dungeon');
 
     const level = this.levelService.load(levelKey);
     this.scene.add(level.sys.settings.key, level, false);
     this.scene.launch(level.sys.settings.key);
 
-    let playerConfig;
+    const playerCharacterStore = this.storeService.namespace(StoreNamespace.PlayerCharacter);
+    const creatureId = playerCharacterStore.get('creatureId');
+    const classConfig = playerCharacterStore.get('classConfig');
+    const inventoryConfig = playerCharacterStore.get('inventoryConfig');
 
-    if (this.storeService.get('continueGame', false)) {
-      playerConfig = this.storeService.get('pcData', undefined);
-
-      if (playerConfig) {
-        this.playerCharacter = this.characterService.generate(
-          playerConfig.creatureId,
-          playerConfig.classConfig,
-          playerConfig.inventoryConfig,
-          this
-        );
-      }
-    }
-
-    if (playerConfig === undefined) {
-      this.playerCharacter = this.characterService.generate(
-        'human',
-        { classId: 'fighter', level: 1 },
-        [
-          { key: 'boots', equipped: 'feet' },
-          { key: 'gloves', equipped: 'hands' },
-          { key: 'pants', equipped: 'legs' },
-          { key: 'shirt', equipped: 'torso' },
-          { key: 'amulet', equipped: 'neck' },
-          { key: 'belt', equipped: 'waist' },
-          { key: 'cap', equipped: 'head' },
-          { key: 'pauldrons', equipped: 'shoulders' },
-          { key: 'gold-ring', equipped: 'rightFinger' },
-          { key: 'silver-ring', equipped: 'leftFinger' },
-        ],
-        this
-      );
-    }
+    this.playerCharacter = this.characterService.generate(creatureId, classConfig, inventoryConfig, this);
 
     level.attachPlayerCharacter(this.playerCharacter);
 

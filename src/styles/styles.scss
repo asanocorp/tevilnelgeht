@@ -3,3 +3,9 @@
 
 @include mat-core(); // Include common styles for Angular Material.
 @include angular-material-theme($theme); // Include theme styles.
+
+* { font-family: Palatino,Palatino Linotype,Palatino LT STD,Book Antiqua,Georgia,serif }
+
+.flex-filler {
+  flex: 1 1 auto !important;
+}
