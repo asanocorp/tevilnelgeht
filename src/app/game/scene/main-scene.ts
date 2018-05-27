@@ -53,10 +53,11 @@ export class MainScene extends Phaser.Scene {
 
     const playerCharacterStore = this.storeService.namespace(StoreNamespace.PlayerCharacter);
     const creatureId = playerCharacterStore.get('creatureId');
-    const classConfig = playerCharacterStore.get('classConfig');
+    const classId = playerCharacterStore.get('classId');
+    const classLevel = playerCharacterStore.get('classLevel');
     const inventoryConfig = playerCharacterStore.get('inventoryConfig');
 
-    this.playerCharacter = this.characterService.generate(creatureId, classConfig, inventoryConfig, this);
+    this.playerCharacter = this.characterService.generate(creatureId, classId, classLevel, inventoryConfig, this);
 
     level.attachPlayerCharacter(this.playerCharacter);
 

@@ -1,3 +1,6 @@
+import { ClassConfig } from '../class/class-config';
+import { CreatureConfig } from '../creature/creature-config';
+
 import { CharacterData } from './character-manager';
 
 export class Character extends Phaser.GameObjects.PathFollower {
@@ -29,8 +32,8 @@ export class Character extends Phaser.GameObjects.PathFollower {
   public attachment: CharacterData;
 
   public constructor(
-    public creatureConfig: any,
-    public classConfig: any,
+    public creatureConfig: CreatureConfig,
+    public classConfig: ClassConfig,
     scene: Phaser.Scene,
     path: Phaser.Curves.Path,
     x: number,

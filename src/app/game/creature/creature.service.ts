@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import GenerateTexture from 'phaser/src/create/GenerateTexture';
 
 import { TextureService } from '../texture/texture.service';
+import { CreatureConfig } from './creature-config';
 import { CreatureDefinitions } from './creature-definitions';
 import { creatures } from './creatures';
 
@@ -22,14 +23,27 @@ export class CreatureService {
 
   public readonly CreatureAnimation = CreatureDefinitions.CreatureAnimation;
 
+  public readonly CreatureAbility = CreatureDefinitions.CreatureAbility;
+
+  public readonly CreatureAbilityBoundType = CreatureDefinitions.CreatureAbilityBoundType;
+
   public constructor(private textureService: TextureService) { }
 
-  public get(creatureId: string): any {
+  public get(creatureId: string): CreatureConfig {
     return creatures[creatureId];
   }
 
-  public getPlayable(): any[] {
+  public getPlayable(): CreatureConfig[] {
     return CreatureDefinitions.playableCreatureIds.map(id => this.get(id));
+  }
+
+  public getPlayerAbilityDice(): string {
+    return CreatureDefinitions.defaultValuesByCreatureType[CreatureDefinitions.CreatureType.Humanoid].abilityDice;
+  }
+
+  public getAbilities(): string[] {
+    return Object.keys(CreatureDefinitions.CreatureAbility)
+      .filter(key => { const n = parseFloat(key); return isNaN(n) || !isFinite(n); });
   }
 
   public loadBaseRenderables(scene: Phaser.Scene): void {

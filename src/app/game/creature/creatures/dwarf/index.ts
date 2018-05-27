@@ -1,3 +1,5 @@
+import { ClassDefinitions } from '../../../class/class-definitions';
+
 import { CreatureDefinitions } from '../../creature-definitions';
 
 export { textures } from './textures';
@@ -13,15 +15,19 @@ export const properNamePlural = 'Dwarves';
 export const restrictions = {
   abilities: [
     {
-      ability: 'Constitution',
+      ability: CreatureDefinitions.CreatureAbility.Constitution,
       score: 9,
-      bound: 'minimum'
+      bound: CreatureDefinitions.CreatureAbilityBoundType.Minimum
     },
     {
-      ability: 'Charisma',
+      ability: CreatureDefinitions.CreatureAbility.Charisma,
       score: 17,
-      bound: 'maximum'
+      bound: CreatureDefinitions.CreatureAbilityBoundType.Maximum
     }
   ],
-  classes: ['fighter', 'cleric', 'thief']
+  classes: [
+    ClassDefinitions.ClassId.Cleric,
+    ClassDefinitions.ClassId.Fighter,
+    ClassDefinitions.ClassId.Thief
+  ] as string[]
 };

@@ -1,3 +1,5 @@
+import { ClassDefinitions } from '../../../class/class-definitions';
+
 import { CreatureDefinitions } from '../../creature-definitions';
 
 export { textures } from './textures';
@@ -13,15 +15,19 @@ export const properNamePlural = 'Halflings';
 export const restrictions = {
   abilities: [
     {
-      ability: 'Dexterity',
+      ability: CreatureDefinitions.CreatureAbility.Dexterity,
       score: 9,
-      bound: 'minimum'
+      bound: CreatureDefinitions.CreatureAbilityBoundType.Minimum
     },
     {
-      ability: 'Strength',
+      ability: CreatureDefinitions.CreatureAbility.Strength,
       score: 17,
-      bound: 'maximum'
+      bound: CreatureDefinitions.CreatureAbilityBoundType
     }
   ],
-  classes: ['fighter', 'cleric', 'thief']
+  classes: [
+    ClassDefinitions.ClassId.Cleric,
+    ClassDefinitions.ClassId.Fighter,
+    ClassDefinitions.ClassId.Thief
+  ] as string[]
 };

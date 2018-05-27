@@ -18,10 +18,10 @@ export class CharacterService {
     private itemService: ItemService
   ) { }
 
-  public generate(creatureId: string, classConfig: ClassConfig, inventoryConfig: any, scene: Phaser.Scene): Character {
+  public generate(creatureId: string, classId: string, classLevel: number, inventoryConfig: any, scene: Phaser.Scene): Character {
     const creatureConfig = this.creatureService.get(creatureId);
 
-    classConfig = { ...this.classService.get(classConfig.classId), ...classConfig };
+    const classConfig = { ...this.classService.get(classId), level: classLevel };
 
     const character = new Character(creatureConfig, classConfig, scene, new Phaser.Curves.Path(), 0, 0);
 
@@ -75,6 +75,7 @@ export class CharacterService {
     });
 
     const characterDefaultTexture = keyPrefix + character.creatureConfig.defaultTexture;
+    const characterDefaultAnimation = keyPrefix + character.creatureConfig.defaultAnimation;
 
     const characterTexturesKeyMap = {};
     Object.keys(character.creatureConfig.texturesKeyMap).forEach(
@@ -89,6 +90,7 @@ export class CharacterService {
     character.texturesKeyMap = characterTexturesKeyMap;
     character.animationsKeyMap = characterAnimationsKeyMap;
     character.defaultTexture = characterDefaultTexture;
+    character.defaultAnimation = characterDefaultAnimation;
 
     this.textureService.loadTextures(scene, characterTextures, this.creatureService.pixelHeight, this.creatureService.pixelWidth);
     this.textureService.loadAnimations(scene, characterAnimations);

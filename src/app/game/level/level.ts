@@ -2,6 +2,8 @@ import { StoreService } from '../../core/store.service';
 
 import { Character } from '../character/character';
 import { CharacterData, CharacterManager } from '../character/character-manager';
+import { CharacterService } from '../character/character.service';
+import { CreatureService } from '../creature/creature.service';
 import { StoreNamespace } from '../store-namespace.enum';
 import { TerrainService } from '../terrain/terrain.service';
 
@@ -74,7 +76,14 @@ export class Level extends Phaser.Scene {
    * @param template Data with which this level is built & displayed.
    * @param storeService Store service.
    */
-  public constructor(key: string, private template: LevelTemplate, private storeService: StoreService) {
+  public constructor(
+    key: string,
+    private template: LevelTemplate,
+    private creatureService: CreatureService,
+    private characterService: CharacterService,
+    private terrainService: TerrainService,
+    private storeService: StoreService
+  ) {
     super({ key });
   }
 
@@ -158,7 +167,7 @@ export class Level extends Phaser.Scene {
     const position = this.getPlacementXY(attachment.position.x, attachment.position.y);
 
     sprite.setPosition(position.x, position.y);
-    sprite.play('idle');
+    this.anims.play(sprite.defaultAnimation, sprite);
 
     this.add.existing(sprite).setInteractive();
     this.scheduler.add(sprite);
@@ -219,11 +228,6 @@ export class Level extends Phaser.Scene {
 
   private storePlayer(): void {
     const pcData = this.characterManager.getPlayerCharacterData();
-    const creatureId = pcData.sprite.creatureConfig.creatureId;
-    const classConfig = {
-      classId: pcData.sprite.classConfig.classId,
-      level: pcData.sprite.classConfig.level
-    };
 
     const inventoryConfig = Object.keys(pcData.sprite.equipmentSlots)
       .filter(slot => pcData.sprite.equipmentSlots[slot] !== undefined)
@@ -231,8 +235,9 @@ export class Level extends Phaser.Scene {
       .concat(pcData.sprite.inventory);
 
     const playerCharacterStore = this.storeService.namespace(StoreNamespace.PlayerCharacter);
-    playerCharacterStore.set('creatureId', creatureId);
-    playerCharacterStore.set('classConfig', classConfig);
+    playerCharacterStore.set('creatureId', pcData.sprite.creatureConfig.creatureId);
+    playerCharacterStore.set('classId', pcData.sprite.classConfig.classId);
+    playerCharacterStore.set('classLevel', pcData.sprite.classConfig.level);
     playerCharacterStore.set('inventoryConfig', inventoryConfig);
   }
 
@@ -248,7 +253,7 @@ export class Level extends Phaser.Scene {
         pos: { x: pcData.position.x, y: pcData.position.y }
       },
       npc: this.characterManager.getNonPlayerCharacterData().map(characterData => {
-        const creatureId = characterData.sprite.creatureConfig.rules.creatureId;
+        const creatureId = characterData.sprite.creatureConfig.creatureId;
         const classConfig = {
           classId: characterData.sprite.classConfig.classId,
           level: characterData.sprite.classConfig.level

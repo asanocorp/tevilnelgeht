@@ -4,6 +4,7 @@ import { MatRadioChange, MatRadioGroup } from '@angular/material';
 import { StoreApi, StoreService } from '../../../core/store.service';
 import { UiTransition, uiTransitionInjectionToken } from '../../../ui/ui-transition';
 
+import { ClassService } from '../../class/class.service';
 import { CreatureService } from '../../creature/creature.service';
 import { DiceRollerMode, DiceRollerService } from '../../dice-roller.service';
 import { StoreNamespace } from '../../store-namespace.enum';
@@ -16,75 +17,11 @@ import { StoreNamespace } from '../../store-namespace.enum';
 export class CharacterGenerationComponent implements OnInit {
   public title = 'Character Generator';
 
-  public abilities = [
-    { label: 'Strength', score: undefined },
-    { label: 'Dexterity', score: undefined },
-    { label: 'Constitution', score: undefined },
-    { label: 'Intelligence', score: undefined },
-    { label: 'Wisdom', score: undefined },
-    { label: 'Charisma', score: undefined }
-  ];
+  public abilities = this.creatureService.getAbilities().map(key => ({ label: key, score: undefined }));
 
   public creatures = this.creatureService.getPlayable().map(c => ({ ...c, label: c.properName, disabled: false }));
 
-  public classes = [
-    {
-      label: 'Cleric',
-      classId: 'cleric',
-      restrictions: {
-        abilities: [
-          {
-            ability: 'Wisdom',
-            score: 9,
-            bound: 'minimum'
-          }
-        ]
-      },
-      disabled: false
-    },
-    {
-      label: 'Fighter',
-      classId: 'fighter',
-      restrictions: {
-        abilities: [
-          {
-            ability: 'Strength',
-            score: 9,
-            bound: 'minimum'
-          }
-        ]
-      },
-      disabled: false
-    },
-    {
-      label: 'Mage',
-      classId: 'mage',
-      restrictions: {
-        abilities: [
-          {
-            ability: 'Intelligence',
-            score: 9,
-            bound: 'minimum'
-          }
-        ]
-      },
-      disabled: false
-    },
-    {
-      label: 'Thief',
-      classId: 'thief',
-      restrictions: {
-        abilities: [
-          {
-            ability: 'Dexterity',
-            score: 9,
-            bound: 'minimum'
-          }
-        ]
-      },
-      disabled: false
-    }
-  ];
+  public classes = this.classService.getPlayable().map(c => ({ ...c, label: c.properName, disabled: false }));
 
   @ViewChildren(MatRadioGroup) private radioGroups: QueryList<MatRadioGroup>;
 
@@ -92,11 +29,14 @@ export class CharacterGenerationComponent implements OnInit {
 
   private selectedClass: string;
 
+  private abilityDice = this.creatureService.getPlayerAbilityDice();
+
   public constructor(
     @Inject(uiTransitionInjectionToken) private uiTransitionService: UiTransition,
     private diceRollerService: DiceRollerService,
     private storeService: StoreService,
-    private creatureService: CreatureService
+    private creatureService: CreatureService,
+    private classService: ClassService
   ) { }
 
   public ngOnInit(): void {
@@ -112,7 +52,7 @@ export class CharacterGenerationComponent implements OnInit {
     this.selectedClass = undefined;
     this.selectedCreature = undefined;
 
-    this.abilities.forEach(ability => ability.score = this.diceRollerService.roll('3d6'));
+    this.abilities.forEach(ability => ability.score = this.diceRollerService.roll(this.abilityDice));
     this.updateAvailableRadioOptions();
   }
 
@@ -132,7 +72,8 @@ export class CharacterGenerationComponent implements OnInit {
   public playGame(): void {
     const playerCharacterStore = this.storeService.namespace(StoreNamespace.PlayerCharacter);
     playerCharacterStore.set('creatureId', this.selectedCreature);
-    playerCharacterStore.set('classConfig', { classId: this.selectedClass, level: 1 });
+    playerCharacterStore.set('classId', this.selectedClass);
+    playerCharacterStore.set('classLevel', 1);
     playerCharacterStore.set('inventoryConfig', [
       { key: 'boots', equipped: 'feet' },
       { key: 'gloves', equipped: 'hands' },
@@ -164,9 +105,9 @@ export class CharacterGenerationComponent implements OnInit {
         const abilityRestriction = abilities[i];
         const ability = this.abilities.find(a => a.label === abilityRestriction.ability);
 
-        if (abilityRestriction.bound === 'maximum') {
+        if (abilityRestriction.bound === this.creatureService.CreatureAbilityBoundType.Maximum) {
           creature.disabled = ability.score > abilityRestriction.score;
-        } else if (abilityRestriction.bound === 'minimum') {
+        } else if (abilityRestriction.bound === this.creatureService.CreatureAbilityBoundType.Minimum) {
           creature.disabled = ability.score < abilityRestriction.score;
         }
 
@@ -180,15 +121,15 @@ export class CharacterGenerationComponent implements OnInit {
       const abilities = classConfig.restrictions.abilities;
 
       if (this.selectedCreature) {
+        this.selectedClass = undefined;
+
+        if (this.radioGroups) {
+          this.radioGroups.find(group => group.name === 'class').selected = null;
+        }
+
         const creature = this.creatures.find((c) => c.creatureId === this.selectedCreature);
         if (!creature.restrictions.classes.includes(classConfig.classId)) {
-          this.selectedClass = undefined;
           classConfig.disabled = true;
-
-          if (this.radioGroups) {
-            this.radioGroups.find(group => group.name === 'class').selected = null;
-          }
-
           return;
         }
       }
@@ -197,9 +138,9 @@ export class CharacterGenerationComponent implements OnInit {
         const abilityRestriction = abilities[i];
         const ability = this.abilities.find(a => a.label === abilityRestriction.ability);
 
-        if (abilityRestriction.bound === 'maximum') {
+        if (abilityRestriction.bound === this.creatureService.CreatureAbilityBoundType.Maximum) {
           classConfig.disabled = ability.score > abilityRestriction.score;
-        } else if (abilityRestriction.bound === 'minimum') {
+        } else if (abilityRestriction.bound === this.creatureService.CreatureAbilityBoundType.Minimum) {
           classConfig.disabled = ability.score < abilityRestriction.score;
         }
 

@@ -1,5 +1,10 @@
 import { CreatureDefinitions } from '../creature-definitions';
 
+import { CreatureConfig } from '../creature-config';
+
+import { CreatureBaseConfig } from './creature-base-config';
+import { CreatureBaseTextureConfig } from './creature-base-texture-config';
+
 export const creatures = {};
 
 Object.keys(CreatureDefinitions.CreatureId)
@@ -7,7 +12,7 @@ Object.keys(CreatureDefinitions.CreatureId)
   .map(key => CreatureDefinitions.CreatureId[key])
   .forEach(creatureId => creatures[creatureId] = generateCreatureConfig(require('./' + creatureId)));
 
-function generateCreatureConfig(base: any): any {
+function generateCreatureConfig(base: CreatureBaseConfig): CreatureConfig {
   const creatureDefaults = CreatureDefinitions.defaultValuesByCreatureType[base.creatureType];
   const keyPrefix = base.creatureId + '-';
 
@@ -17,14 +22,14 @@ function generateCreatureConfig(base: any): any {
   const textures = Object.keys(base.textures).map(baseKey => {
     const key = keyPrefix + baseKey;
     texturesKeyMap[baseKey] = key;
-    return { ...generateCreatureTextureConfig(base.textures[baseKey], base), key };
+    return { ...processCreatureBaseTextureConfig(base.textures[baseKey], base), key };
   });
 
   const baseAnimations = base.animationConfigs || creatureDefaults.animationConfigs;
 
   const animationKeys = [];
   const animationsKeyMap = {};
-  const animations = Object.keys(baseAnimations).filter(baseKey => creatureDefaults.animationKeys.includes(baseKey as any)).map(baseKey => {
+  const animations = Object.keys(baseAnimations).filter(baseKey => creatureDefaults.animationKeys.includes(baseKey)).map(baseKey => {
     const key = keyPrefix + baseKey;
     animationKeys.push(baseKey);
     animationsKeyMap[baseKey] = key;
@@ -33,20 +38,27 @@ function generateCreatureConfig(base: any): any {
     return { ...config, key, frames };
   });
 
+  const abilityDice = {};
+  Object.keys(CreatureDefinitions.CreatureAbility)
+    .filter(key => { const n = parseFloat(key); return isNaN(n) || !isFinite(n); })
+    .map(key => abilityDice[key] = base.abilityDice ? base.abilityDice[key] : creatureDefaults.abilityDice);
+
   return {
     ...base,
+    abilityDice,
     defaultTexture: textures[0].key,
     textureOrigin,
     textures,
     texturesKeyMap,
     defaultAnimation: animations[0].key,
+    animationConfigs: baseAnimations,
     animationKeys,
     animations,
     animationsKeyMap
   };
 }
 
-function generateCreatureTextureConfig(texture: any, base: any): any {
+function processCreatureBaseTextureConfig(texture: CreatureBaseTextureConfig, base: CreatureBaseConfig): CreatureBaseTextureConfig {
   const creatureDefaults = CreatureDefinitions.defaultValuesByCreatureType[base.creatureType];
 
   const data = [];
@@ -69,5 +81,5 @@ function generateCreatureTextureConfig(texture: any, base: any): any {
     sockets[socketKey] = texture.sockets[socketKey].map(rect => Rect.Clone(rect).setPosition(margins.left + rect.x, margins.top + rect.y));
   });
 
-  return { data, sockets, shadowColor };
+  return { data, sockets, textureMargins: margins, shadowColor };
 }
