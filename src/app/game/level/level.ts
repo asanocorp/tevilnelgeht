@@ -219,7 +219,7 @@ export class Level extends Phaser.Scene {
 
   private storePlayer(): void {
     const pcData = this.characterManager.getPlayerCharacterData();
-    const creatureId = pcData.sprite.creatureConfig.rules.creatureId;
+    const creatureId = pcData.sprite.creatureConfig.creatureId;
     const classConfig = {
       classId: pcData.sprite.classConfig.classId,
       level: pcData.sprite.classConfig.level

@@ -24,6 +24,8 @@ export class Character extends Phaser.GameObjects.PathFollower {
 
   public defaultTexture = '';
 
+  public defaultAnimation = '';
+
   public attachment: CharacterData;
 
   public constructor(
@@ -39,8 +41,7 @@ export class Character extends Phaser.GameObjects.PathFollower {
     this.animationsKeyMap = { ...creatureConfig.animationsKeyMap };
     this.texturesKeyMap = { ...creatureConfig.texturesKeyMap };
     this.defaultTexture = creatureConfig.defaultTexture;
-
-    this.setOrigin(creatureConfig.origin.x, creatureConfig.origin.y);
+    this.defaultAnimation = creatureConfig.defaultAnimation;
   }
 
   public act(cost: (c) => void): Promise<void> {

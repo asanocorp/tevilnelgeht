@@ -25,6 +25,8 @@ export class CharacterService {
 
     const character = new Character(creatureConfig, classConfig, scene, new Phaser.Curves.Path(), 0, 0);
 
+    character.setOrigin(creatureConfig.textureOrigin.x, creatureConfig.textureOrigin.y);
+
     inventoryConfig.forEach(item => {
       if (item.equipped) {
         character.equipmentSlots[item.equipped] = this.itemService.getEquippableItemGroup(item.equipped)[item.key];

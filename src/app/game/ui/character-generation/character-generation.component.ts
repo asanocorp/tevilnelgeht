@@ -4,6 +4,7 @@ import { MatRadioChange, MatRadioGroup } from '@angular/material';
 import { StoreApi, StoreService } from '../../../core/store.service';
 import { UiTransition, uiTransitionInjectionToken } from '../../../ui/ui-transition';
 
+import { CreatureService } from '../../creature/creature.service';
 import { DiceRollerMode, DiceRollerService } from '../../dice-roller.service';
 import { StoreNamespace } from '../../store-namespace.enum';
 
@@ -24,77 +25,7 @@ export class CharacterGenerationComponent implements OnInit {
     { label: 'Charisma', score: undefined }
   ];
 
-  public creatures = [
-    {
-      label: 'Dwarf',
-      creatureId: 'dwarf',
-      restrictions: {
-        abilities: [
-          {
-            ability: 'Constitution',
-            score: 9,
-            bound: 'minimum'
-          },
-          {
-            ability: 'Charisma',
-            score: 17,
-            bound: 'maximum'
-          }
-        ],
-        classes: ['fighter', 'cleric', 'thief']
-      },
-      disabled: false
-    },
-    {
-      label: 'Elf',
-      creatureId: 'elf',
-      restrictions: {
-        abilities: [
-          {
-            ability: 'Intelligence',
-            score: 9,
-            bound: 'minimum'
-          },
-          {
-            ability: 'Constitution',
-            score: 17,
-            bound: 'maximum'
-          }
-        ],
-        classes: ['fighter', 'cleric', 'thief', 'mage']
-      },
-      disabled: false
-    },
-    {
-      label: 'Halfling',
-      creatureId: 'halfling',
-      restrictions: {
-        abilities: [
-          {
-            ability: 'Dexterity',
-            score: 9,
-            bound: 'minimum'
-          },
-          {
-            ability: 'Strength',
-            score: 17,
-            bound: 'maximum'
-          }
-        ],
-        classes: ['fighter', 'cleric', 'thief']
-      },
-      disabled: false
-    },
-    {
-      label: 'Human',
-      creatureId: 'human',
-      restrictions: {
-        abilities: [],
-        classes: ['fighter', 'cleric', 'thief', 'mage']
-      },
-      disabled: false
-    }
-  ];
+  public creatures = this.creatureService.getPlayable().map(c => ({ ...c, label: c.properName, disabled: false }));
 
   public classes = [
     {
@@ -164,7 +95,8 @@ export class CharacterGenerationComponent implements OnInit {
   public constructor(
     @Inject(uiTransitionInjectionToken) private uiTransitionService: UiTransition,
     private diceRollerService: DiceRollerService,
-    private storeService: StoreService
+    private storeService: StoreService,
+    private creatureService: CreatureService
   ) { }
 
   public ngOnInit(): void {
