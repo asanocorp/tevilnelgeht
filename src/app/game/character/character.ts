@@ -52,6 +52,11 @@ export class Character extends Phaser.GameObjects.PathFollower {
   }
 
   public play(key: string, ignoreIfPlaying = false, startFrame = 0): Character {
+    if (!this.creatureConfig.animationKeys.includes(key)) {
+      this.scene.anims.play(this.defaultAnimation, this);
+      return this;
+    }
+
     return super.play(this.animationsKeyMap[key], ignoreIfPlaying, startFrame) as Character;
   }
 }

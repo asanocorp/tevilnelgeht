@@ -19,8 +19,6 @@ export class CreatureService {
 
   public readonly CreatureType = CreatureDefinitions.CreatureType;
 
-  public readonly CreatureEquipmentSlot = CreatureDefinitions.CreatureEquipmentSlot;
-
   public readonly CreatureAnimation = CreatureDefinitions.CreatureAnimation;
 
   public readonly CreatureAbility = CreatureDefinitions.CreatureAbility;
