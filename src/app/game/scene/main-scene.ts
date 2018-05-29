@@ -57,7 +57,13 @@ export class MainScene extends Phaser.Scene {
     const classLevel = playerCharacterStore.get('classLevel');
     const inventoryConfig = playerCharacterStore.get('inventoryConfig');
 
-    this.playerCharacter = this.characterService.generate(creatureId, classId, classLevel, inventoryConfig, this);
+    this.playerCharacter = this.characterService.generate(
+      creatureId,
+      classId,
+      classLevel,
+      [{ itemType: 'clothing', itemId: 'sandals' }],
+      this
+    );
 
     level.attachPlayerCharacter(this.playerCharacter);
 

@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 
-import { equippable } from './equippable';
-
+import { ItemConfig } from './item-config';
 import { ItemDefinitions } from './item-definitions';
+import { items } from './items';
 
 @Injectable({
   providedIn: 'root'
@@ -10,13 +10,9 @@ import { ItemDefinitions } from './item-definitions';
 export class ItemService {
   public static readonly ItemEquipSlot = ItemDefinitions.ItemEquipSlot;
 
-  private itemIndex = { equippable };
+  public static readonly ItemType = ItemDefinitions.ItemType;
 
-  public getEquippableItemGroup(group: string): any {
-    if (group === 'leftFinger' || group === 'rightFinger') {
-      group = 'fingers';
-    }
-
-    return this.itemIndex.equippable[group];
+  public get(type: string, id: string): ItemConfig {
+    return items[type][id];
   }
 }

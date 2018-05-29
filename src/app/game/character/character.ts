@@ -1,25 +1,13 @@
 import { ClassConfig } from '../class/class-config';
 import { CreatureConfig } from '../creature/creature-config';
+import { ItemConfig } from '../item/item-config';
 
 import { CharacterData } from './character-manager';
 
 export class Character extends Phaser.GameObjects.PathFollower {
-  public readonly equipmentSlots = {
-    legs: undefined,
-    torso: undefined,
-    neck: undefined,
-    head: undefined,
-    shoulders: undefined,
-    waist: undefined,
-    hands: undefined,
-    rightFinger: undefined,
-    leftFinger: undefined,
-    feet: undefined,
-    rightActive: undefined,
-    leftActive: undefined
-  };
+  public readonly inventory: ItemConfig[] = [];
 
-  public readonly inventory = [];
+  public readonly itemEquipSlots = [];
 
   public animationsKeyMap;
 

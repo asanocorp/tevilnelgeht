@@ -229,16 +229,16 @@ export class Level extends Phaser.Scene {
   private storePlayer(): void {
     const pcData = this.characterManager.getPlayerCharacterData();
 
-    const inventoryConfig = Object.keys(pcData.sprite.equipmentSlots)
+    /*const inventoryConfig = Object.keys(pcData.sprite.equipmentSlots)
       .filter(slot => pcData.sprite.equipmentSlots[slot] !== undefined)
       .map(slot => ({ equipped: slot, key: pcData.sprite.equipmentSlots[slot].key}))
-      .concat(pcData.sprite.inventory);
+      .concat(pcData.sprite.inventory);*/
 
     const playerCharacterStore = this.storeService.namespace(StoreNamespace.PlayerCharacter);
     playerCharacterStore.set('creatureId', pcData.sprite.creatureConfig.creatureId);
     playerCharacterStore.set('classId', pcData.sprite.classConfig.classId);
     playerCharacterStore.set('classLevel', pcData.sprite.classConfig.level);
-    playerCharacterStore.set('inventoryConfig', inventoryConfig);
+    // playerCharacterStore.set('inventoryConfig', inventoryConfig);
   }
 
   /**
@@ -259,12 +259,12 @@ export class Level extends Phaser.Scene {
           level: characterData.sprite.classConfig.level
         };
 
-        const inventoryConfig = Object.keys(characterData.sprite.equipmentSlots)
+        /*const inventoryConfig = Object.keys(characterData.sprite.equipmentSlots)
           .filter(slot => characterData.sprite.equipmentSlots[slot] !== undefined)
           .map(slot => ({ equipped: slot, key: characterData.sprite.equipmentSlots[slot].key}))
-          .concat(characterData.sprite.inventory);
+          .concat(characterData.sprite.inventory);*/
 
-        return { creatureId, classConfig, inventoryConfig };
+        return { creatureId, classConfig, /*inventoryConfig*/ };
       })
     };
 
@@ -317,6 +317,7 @@ export class Level extends Phaser.Scene {
     // No pending move actions or path is blocked, perform character specific action.
     if (attachment.isPlayer) {
       this.isPlayerTurn = true;
+      console.log(attachment);
     } else {
       // Execute npc action...
     }

@@ -55,9 +55,24 @@ export class HumanoidCreatureDefinitions {
     }
   };
 
+  public static readonly itemEquipSlotRenderOrder = [
+    ItemDefinitions.ItemEquipSlot.Cloak,
+    ItemDefinitions.ItemEquipSlot.Chest,
+    ItemDefinitions.ItemEquipSlot.Neck,
+    ItemDefinitions.ItemEquipSlot.Belt,
+    ItemDefinitions.ItemEquipSlot.Leg,
+    ItemDefinitions.ItemEquipSlot.Foot,
+    ItemDefinitions.ItemEquipSlot.Arm,
+    ItemDefinitions.ItemEquipSlot.Hand,
+    ItemDefinitions.ItemEquipSlot.Ring,
+    ItemDefinitions.ItemEquipSlot.Head,
+    ItemDefinitions.ItemEquipSlot.Wieldable
+  ] as string[];
+
   public static readonly BodyPart = HumanoidCreatureBodyPart;
 
   public static readonly bodyPartTree = {
+    root: HumanoidCreatureBodyPart.Torso,
     [HumanoidCreatureBodyPart.Torso]: {
       slots: [
         ItemDefinitions.ItemEquipSlot.Belt,

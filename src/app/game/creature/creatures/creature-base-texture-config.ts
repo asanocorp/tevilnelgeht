@@ -1,6 +1,6 @@
 export interface CreatureBaseTextureConfig {
   data: string[];
-  sockets: {
+  bodyPart: {
     [key: string]: Phaser.Geom.Rectangle[];
   };
   textureMargins?: { top: number; right: number; bottom: number; left: number; };

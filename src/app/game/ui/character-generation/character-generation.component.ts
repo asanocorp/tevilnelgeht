@@ -74,18 +74,6 @@ export class CharacterGenerationComponent implements OnInit {
     playerCharacterStore.set('creatureId', this.selectedCreature);
     playerCharacterStore.set('classId', this.selectedClass);
     playerCharacterStore.set('classLevel', 1);
-    playerCharacterStore.set('inventoryConfig', [
-      { key: 'boots', equipped: 'feet' },
-      { key: 'gloves', equipped: 'hands' },
-      { key: 'pants', equipped: 'legs' },
-      { key: 'shirt', equipped: 'torso' },
-      { key: 'amulet', equipped: 'neck' },
-      { key: 'belt', equipped: 'waist' },
-      { key: 'cap', equipped: 'head' },
-      { key: 'pauldrons', equipped: 'shoulders' },
-      { key: 'gold-ring', equipped: 'rightFinger' },
-      { key: 'silver-ring', equipped: 'leftFinger' },
-    ]);
 
     this.uiTransitionService.deactivate();
     (this.uiTransitionService.game.scene.getScene('Main') as any).playTest();

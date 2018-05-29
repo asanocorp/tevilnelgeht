@@ -38,6 +38,10 @@ function generateCreatureConfig(base: CreatureBaseConfig): CreatureConfig {
     return { ...config, key, frames };
   });
 
+  const itemEquipSlotRenderOrder = base.itemEquipSlotRenderOrder || creatureDefaults.itemEquipSlotRenderOrder;
+
+  const bodyPartTree = base.bodyPartTree || creatureDefaults.bodyPartTree;
+
   const abilityDice = {};
   Object.keys(CreatureDefinitions.CreatureAbility)
     .filter(key => { const n = parseFloat(key); return isNaN(n) || !isFinite(n); })
@@ -54,7 +58,9 @@ function generateCreatureConfig(base: CreatureBaseConfig): CreatureConfig {
     animationConfigs: baseAnimations,
     animationKeys,
     animations,
-    animationsKeyMap
+    animationsKeyMap,
+    itemEquipSlotRenderOrder,
+    bodyPartTree
   };
 }
 
@@ -62,7 +68,7 @@ function processCreatureBaseTextureConfig(texture: CreatureBaseTextureConfig, ba
   const creatureDefaults = CreatureDefinitions.defaultValuesByCreatureType[base.creatureType];
 
   const data = [];
-  const sockets = {};
+  const bodyPart = {};
   const shadowColor = texture.shadowColor || creatureDefaults.shadowColor;
   const margins = texture.textureMargins || creatureDefaults.textureMargins;
 
@@ -76,10 +82,12 @@ function processCreatureBaseTextureConfig(texture: CreatureBaseTextureConfig, ba
     data.push('.'.repeat(texture.data[0].length + margins.left + margins.right));
   }
 
-  Object.keys(texture.sockets).forEach(socketKey => {
+  Object.keys(texture.bodyPart).forEach(bodyPartKey => {
     const Rect = Phaser.Geom.Rectangle;
-    sockets[socketKey] = texture.sockets[socketKey].map(rect => Rect.Clone(rect).setPosition(margins.left + rect.x, margins.top + rect.y));
+    bodyPart[bodyPartKey] = texture.bodyPart[bodyPartKey].map(
+      rect => Rect.Clone(rect).setPosition(margins.left + rect.x, margins.top + rect.y)
+    );
   });
 
-  return { data, sockets, textureMargins: margins, shadowColor };
+  return { data, bodyPart, textureMargins: margins, shadowColor };
 }

@@ -22,5 +22,7 @@ export interface CreatureBaseConfig {
   animationConfigs?: {
     [key: string]: { frameRate: number; frames: { key: string; }[]; repeat: number; }
   };
+  itemEquipSlotRenderOrder?: string[];
+  bodyPartTree?: any;
   abilityDice?: { [key: string]: string; };
 }

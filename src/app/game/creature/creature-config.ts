@@ -1,7 +1,3 @@
-import { CreatureDefinitions } from './creature-definitions';
-import { CreatureBaseConfig } from './creatures/creature-base-config';
-import { CreatureBaseTextureConfig } from './creatures/creature-base-texture-config';
-
 export interface CreatureConfig {
   creatureId: string;
   creatureType: string;
@@ -20,7 +16,7 @@ export interface CreatureConfig {
   textures: {
     key: string;
     data: string[];
-    sockets: {
+    bodyPart: {
       [key: string]: Phaser.Geom.Rectangle[];
     };
     textureMargins?: { top: number; right: number; bottom: number; left: number; };
@@ -32,5 +28,7 @@ export interface CreatureConfig {
   animationKeys: string[];
   animations: { key: string; frameRate: number; frames: { key: string; }[]; repeat: number; }[];
   animationsKeyMap: { [key: string]: string; };
+  itemEquipSlotRenderOrder: string[];
+  bodyPartTree: any;
   abilityDice: { [key: string]: string; };
 }
