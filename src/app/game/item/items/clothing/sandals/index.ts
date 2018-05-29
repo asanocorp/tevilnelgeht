@@ -2,7 +2,7 @@ import { ItemDefinitions } from '../../../item-definitions';
 
 import * as textureData from './texture';
 
-export const itemId = 'sandals';
+export const itemId = ItemDefinitions.ItemId.Sandals;
 
 export const itemType = ItemDefinitions.ItemType.Clothing;
 

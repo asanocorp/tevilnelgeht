@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
 
-import { ClassService } from '../class/class.service';
 import { ClassConfig } from '../class/class-config';
+import { ClassService } from '../class/class.service';
 import { CreatureBodyPartTreeNode } from '../creature/creature-body-part-tree';
 import { CreatureService } from '../creature/creature.service';
 import { ItemConfig } from '../item/item-config';
 import { ItemService } from '../item/item.service';
 import { TextureService } from '../texture/texture.service';
+
 import { Character } from './character';
 
 /**
@@ -63,7 +64,7 @@ export class CharacterService {
 
     // Fill character's inventory using inventory configuration array.
     inventory.forEach(itemKeys => {
-      character.inventory.push(this.itemService.get(itemKeys.itemType, itemKeys.itemId));
+      character.inventory.push(this.itemService.get(itemKeys.itemId));
     });
 
     // Auto-equip items that correspond to empty item equip slots on character.

@@ -71,5 +71,8 @@ export class MainScene extends Phaser.Scene {
 
     // Required so player sprite remains interactive when attached to a level.
     this.scene.bringToTop('Main');
+
+    const sandals = level.add.image(48 * 3 + 24, 48 * 3 + 24, 'sandals');
+    sandals.setOrigin(0.5, 1);
   }
 }

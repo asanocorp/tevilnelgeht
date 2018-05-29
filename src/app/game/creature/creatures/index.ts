@@ -5,13 +5,25 @@ import { CreatureConfig } from '../creature-config';
 import { CreatureBaseConfig } from './creature-base-config';
 import { CreatureBaseTextureConfig } from './creature-base-texture-config';
 
+/**
+ * Creature configurations.
+ */
 export const creatures = {};
 
+// Generate creature configurations.
 Object.keys(CreatureDefinitions.CreatureId)
+  // Parse creature ID enumerations.
   .filter(key => { const n = parseFloat(key); return isNaN(n) || !isFinite(n); })
+  // Map enumeration to creature ID.
   .map(key => CreatureDefinitions.CreatureId[key])
+  // Use creature ID to locate data.
   .forEach(creatureId => creatures[creatureId] = generateCreatureConfig(require('./' + creatureId)));
 
+/**
+ * Generate creature configuration.
+ *
+ * @param base Base creature configuration.
+ */
 function generateCreatureConfig(base: CreatureBaseConfig): CreatureConfig {
   const creatureDefaults = CreatureDefinitions.defaultValuesByCreatureType[base.creatureType];
   const keyPrefix = base.creatureId + '-';
@@ -64,6 +76,12 @@ function generateCreatureConfig(base: CreatureBaseConfig): CreatureConfig {
   };
 }
 
+/**
+ * Process creature's base texture configuration.
+ *
+ * @param texture Base texture configuration.
+ * @param base Base creature configuration.
+ */
 function processCreatureBaseTextureConfig(texture: CreatureBaseTextureConfig, base: CreatureBaseConfig): CreatureBaseTextureConfig {
   const creatureDefaults = CreatureDefinitions.defaultValuesByCreatureType[base.creatureType];
 

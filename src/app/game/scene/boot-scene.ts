@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 
 import { CreatureService } from '../creature/creature.service';
+import { ItemService } from '../item/item.service';
 import { TerrainService } from '../terrain/terrain.service';
 
 /**
@@ -17,8 +18,9 @@ export class BootScene extends Phaser.Scene {
    *
    * @param creatureService Creature service; load base renderables.
    * @param terrainService Terrain service; load terrain tileset.
+   * @param itemService Item service; load base renderables.
    */
-  public constructor(private creatureService: CreatureService, private terrainService: TerrainService) {
+  public constructor(private creatureService: CreatureService, private terrainService: TerrainService, private itemService: ItemService) {
     super({ key: 'Boot' });
   }
 
@@ -41,6 +43,7 @@ export class BootScene extends Phaser.Scene {
 
     this.creatureService.loadBaseRenderables(this);
     this.terrainService.loadTerrainTileset(this);
+    this.itemService.loadBaseRenderables(this);
   }
 
   /**

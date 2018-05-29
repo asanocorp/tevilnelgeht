@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 
+import { TextureService } from '../texture/texture.service';
 import { ItemConfig } from './item-config';
 import { ItemDefinitions } from './item-definitions';
 import { items } from './items';
@@ -8,11 +9,24 @@ import { items } from './items';
   providedIn: 'root'
 })
 export class ItemService {
-  public static readonly ItemEquipSlot = ItemDefinitions.ItemEquipSlot;
+  public readonly pixelWidth = ItemDefinitions.pixelWidth;
 
-  public static readonly ItemType = ItemDefinitions.ItemType;
+  public readonly pixelHeight = ItemDefinitions.pixelHeight;
 
-  public get(type: string, id: string): ItemConfig {
-    return items[type][id];
+  public readonly ItemEquipSlot = ItemDefinitions.ItemEquipSlot;
+
+  public readonly ItemType = ItemDefinitions.ItemType;
+
+  public constructor(private textureService: TextureService) { }
+
+  public get(itemId: string): ItemConfig {
+    return items[itemId];
+  }
+
+  public loadBaseRenderables(scene: Phaser.Scene): void {
+    Object.keys(items).forEach(itemKey => {
+      const item = this.get(itemKey);
+      this.textureService.loadTextures(scene, [{ ...item.texture, shadowColor: 'black' }], this.pixelWidth, this.pixelHeight);
+    });
   }
 }
