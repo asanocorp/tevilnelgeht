@@ -1,34 +1,25 @@
+import { CreatureAbilityRestriction } from './creature-ability-restriction';
+import { CreatureAnimationConfig } from './creature-animation-config';
+import { CreatureBodyPartTree } from './creature-body-part-tree';
+import { CreatureTextureConfig } from './creature-texture-config';
+import { CreatureBaseAnimationConfig } from './creatures/creature-base-animation-config';
+
 export interface CreatureConfig {
   creatureId: string;
   creatureType: string;
   properName: string;
   properNamePlural: string;
-  restrictions: {
-    abilities: {
-      ability: string;
-      score: number;
-      bound: string;
-    }[];
-    classes: string[];
-  };
+  restrictions: { abilities: CreatureAbilityRestriction[]; classes: string[]; };
   defaultTexture: string;
   textureOrigin: { x: number; y: number; };
-  textures: {
-    key: string;
-    data: string[];
-    bodyPart: {
-      [key: string]: Phaser.Geom.Rectangle[];
-    };
-    textureMargins?: { top: number; right: number; bottom: number; left: number; };
-    shadowColor?: string;
-  }[];
+  textures: CreatureTextureConfig[];
   texturesKeyMap: { [key: string]: string; };
   defaultAnimation: string;
-  animationConfigs: { [key: string]: { frameRate: number; frames: { key: string; }[]; repeat: number; } };
+  animationConfigs: { [key: string]: CreatureBaseAnimationConfig };
   animationKeys: string[];
-  animations: { key: string; frameRate: number; frames: { key: string; }[]; repeat: number; }[];
+  animations: CreatureAnimationConfig[];
   animationsKeyMap: { [key: string]: string; };
   itemEquipSlotRenderOrder: string[];
-  bodyPartTree: any;
+  bodyPartTree: CreatureBodyPartTree;
   abilityDice: { [key: string]: string; };
 }

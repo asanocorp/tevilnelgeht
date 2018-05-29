@@ -1,4 +1,6 @@
 import { CreatureDefinitions } from '../../../../creature/creature-definitions';
+import { CreatureTextureConfig } from '../../../../creature/creature-texture-config';
+
 import { ItemConfig } from '../../../item-config';
 
 export const data = [
@@ -24,70 +26,35 @@ export const equippedColorPaletteIndex = '6';
 
 export function processCreatureEquippedTextureConfig(
   cretureType: string,
-  creatureTexture: {
-    key: string;
-    data: string[];
-    bodyPart: {
-      [key: string]: Phaser.Geom.Rectangle[];
-    };
-    textureMargins?: { top: number; right: number; bottom: number; left: number; };
-    shadowColor?: string;
-  },
+  creatureTexture: CreatureTextureConfig,
   itemConfig: ItemConfig
-): {
-    key: string;
-    data: string[];
-    bodyPart: {
-      [key: string]: Phaser.Geom.Rectangle[];
-    };
-    textureMargins?: { top: number; right: number; bottom: number; left: number; };
-    shadowColor?: string;
-  } {
-    switch (cretureType) {
-      case CreatureDefinitions.CreatureType.Humanoid:
-        return processHumanoidTexture(creatureTexture, itemConfig);
-      default:
-        break;
-    }
-
-    return creatureTexture;
+): CreatureTextureConfig {
+  switch (cretureType) {
+    case CreatureDefinitions.CreatureType.Humanoid:
+      return processHumanoidTexture(creatureTexture, itemConfig);
+    default:
+      break;
   }
 
-function processHumanoidTexture(
-  creatureTexture: {
-    key: string;
-    data: string[];
-    bodyPart: {
-      [key: string]: Phaser.Geom.Rectangle[];
-    };
-    textureMargins?: { top: number; right: number; bottom: number; left: number; };
-    shadowColor?: string;
-  },
-  itemConfig: ItemConfig
-): {
-    key: string;
-    data: string[];
-    bodyPart: {
-      [key: string]: Phaser.Geom.Rectangle[];
-    };
-    textureMargins?: { top: number; right: number; bottom: number; left: number; };
-    shadowColor?: string;
-  } {
-    const creatureDefaults = CreatureDefinitions.defaultValuesByCreatureType[CreatureDefinitions.CreatureType.Humanoid];
+  return creatureTexture;
+}
 
-    const leftFoot = creatureTexture.bodyPart[creatureDefaults.BodyPart.LeftFoot];
-    const rightFoot = creatureTexture.bodyPart[creatureDefaults.BodyPart.RightFoot];
+function processHumanoidTexture(creatureTexture: CreatureTextureConfig, itemConfig: ItemConfig): CreatureTextureConfig {
+  const creatureDefaults = CreatureDefinitions.defaultValuesByCreatureType[CreatureDefinitions.CreatureType.Humanoid];
 
-    const leftFootBottom = leftFoot[leftFoot.length - 1];
-    const rightFootBottom = rightFoot[rightFoot.length - 1];
+  const leftFoot = creatureTexture.bodyPart[creatureDefaults.BodyPart.LeftFoot];
+  const rightFoot = creatureTexture.bodyPart[creatureDefaults.BodyPart.RightFoot];
 
-    let row = creatureTexture.data[leftFootBottom.bottom - 1];
-    creatureTexture.data[leftFootBottom.bottom - 1]
-      = row.substr(0, leftFootBottom.right - 1) + itemConfig.texture.equippedColorPaletteIndex + row.substr(leftFootBottom.right);
+  const leftFootBottom = leftFoot[leftFoot.length - 1];
+  const rightFootBottom = rightFoot[rightFoot.length - 1];
 
-    row = creatureTexture.data[rightFootBottom.bottom - 1];
-    creatureTexture.data[rightFootBottom.bottom - 1]
-      = row.substr(0, rightFootBottom.left) + itemConfig.texture.equippedColorPaletteIndex + row.substr(rightFootBottom.left + 1);
+  let row = creatureTexture.data[leftFootBottom.bottom - 1];
+  creatureTexture.data[leftFootBottom.bottom - 1]
+    = row.substr(0, leftFootBottom.right - 1) + itemConfig.texture.equippedColorPaletteIndex + row.substr(leftFootBottom.right);
 
-    return creatureTexture;
-  }
+  row = creatureTexture.data[rightFootBottom.bottom - 1];
+  creatureTexture.data[rightFootBottom.bottom - 1]
+    = row.substr(0, rightFootBottom.left) + itemConfig.texture.equippedColorPaletteIndex + row.substr(rightFootBottom.left + 1);
+
+  return creatureTexture;
+}

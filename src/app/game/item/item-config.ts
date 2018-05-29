@@ -1,3 +1,5 @@
+import { CreatureTextureConfig } from '../creature/creature-texture-config';
+
 export interface ItemConfig {
   itemId: string;
   itemType: string;
@@ -9,15 +11,7 @@ export interface ItemConfig {
     equippedColorPaletteIndex?: string;
     processCreatureEquippedTextureConfig?: (
       creatureType: string,
-      creatureTexture: {
-        key: string;
-        data: string[];
-        bodyPart: {
-          [key: string]: Phaser.Geom.Rectangle[];
-        };
-        textureMargins?: { top: number; right: number; bottom: number; left: number; };
-        shadowColor?: string;
-      },
+      creatureTexture: CreatureTextureConfig,
       itemConfig: ItemConfig
     ) => {
       key: string;

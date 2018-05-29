@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 
 import { ClassService } from '../class/class.service';
 import { ClassConfig } from '../class/class-config';
+import { CreatureBodyPartTreeNode } from '../creature/creature-body-part-tree';
 import { CreatureService } from '../creature/creature.service';
 import { ItemConfig } from '../item/item-config';
 import { ItemService } from '../item/item.service';
@@ -55,7 +56,7 @@ export class CharacterService {
 
     // Parse body data from creature configuration.
     const root = creatureConfig.bodyPartTree.root;
-    const bodyData = this.parseBodyParts(root, creatureConfig.bodyPartTree[root]);
+    const bodyData = this.parseBodyParts(root, creatureConfig.bodyPartTree[root] as CreatureBodyPartTreeNode);
 
     // Setup character's item equip slots.
     bodyData.itemEquipSlots.forEach(s => character.itemEquipSlots.push(s));
@@ -397,7 +398,7 @@ export class CharacterService {
    * @param location Body part location.
    * @param data Body part data.
    */
-  private parseBodyParts(location: string, data: any): any {
+  private parseBodyParts(location: string, data: CreatureBodyPartTreeNode): any {
     const container = {
       itemEquipSlots: []
     };

@@ -1,6 +1,8 @@
 import { ItemDefinitions } from '../item/item-definitions';
 
+import { CreatureBaseAnimationConfig } from './creatures/creature-base-animation-config';
 import { CreatureAnimation } from './creature-animation.enum';
+import { CreatureBodyPartTree } from './creature-body-part-tree';
 
 enum HumanoidCreatureBodyPart {
   Head = 'head',
@@ -15,6 +17,8 @@ enum HumanoidCreatureBodyPart {
   LeftFoot = 'leftFoot'
 }
 
+const IES = ItemDefinitions.ItemEquipSlot;
+
 export class HumanoidCreatureDefinitions {
   public static readonly textureMargins = { top: 1, right: 1, bottom: 0, left: 1 };
 
@@ -24,7 +28,7 @@ export class HumanoidCreatureDefinitions {
 
   public static readonly animationKeys = [CreatureAnimation.Idle, CreatureAnimation.WalkLeft, CreatureAnimation.WalkRight] as string[];
 
-  public static readonly animationConfigs = {
+  public static readonly animationConfigs: { [key: string]: CreatureBaseAnimationConfig } = {
     [CreatureAnimation.Idle]: {
       frameRate: 1,
       frames: [
@@ -56,87 +60,49 @@ export class HumanoidCreatureDefinitions {
   };
 
   public static readonly itemEquipSlotRenderOrder = [
-    ItemDefinitions.ItemEquipSlot.Cloak,
-    ItemDefinitions.ItemEquipSlot.Chest,
-    ItemDefinitions.ItemEquipSlot.Neck,
-    ItemDefinitions.ItemEquipSlot.Belt,
-    ItemDefinitions.ItemEquipSlot.Leg,
-    ItemDefinitions.ItemEquipSlot.Foot,
-    ItemDefinitions.ItemEquipSlot.Arm,
-    ItemDefinitions.ItemEquipSlot.Hand,
-    ItemDefinitions.ItemEquipSlot.Ring,
-    ItemDefinitions.ItemEquipSlot.Head,
-    ItemDefinitions.ItemEquipSlot.Wieldable
+    IES.Cloak,
+    IES.Chest,
+    IES.Neck,
+    IES.Belt,
+    IES.Leg,
+    IES.Foot,
+    IES.Arm,
+    IES.Hand,
+    IES.Ring,
+    IES.Head,
+    IES.Wieldable
   ] as string[];
 
   public static readonly BodyPart = HumanoidCreatureBodyPart;
 
-  public static readonly bodyPartTree = {
+  public static readonly bodyPartTree: CreatureBodyPartTree = {
     root: HumanoidCreatureBodyPart.Torso,
     [HumanoidCreatureBodyPart.Torso]: {
-      slots: [
-        ItemDefinitions.ItemEquipSlot.Belt,
-        ItemDefinitions.ItemEquipSlot.Chest,
-        ItemDefinitions.ItemEquipSlot.Quiver,
-        ItemDefinitions.ItemEquipSlot.Cloak,
-        ItemDefinitions.ItemEquipSlot.Neck
-      ],
+      slots: [IES.Belt, IES.Chest, IES.Quiver, IES.Cloak, IES.Neck],
       children: {
-        [HumanoidCreatureBodyPart.Head]: {
-          slots: [
-            ItemDefinitions.ItemEquipSlot.Head
-          ]
-        },
+        [HumanoidCreatureBodyPart.Head]: { slots: [IES.Head] },
         [HumanoidCreatureBodyPart.RightArm]: {
-          slots: [
-            ItemDefinitions.ItemEquipSlot.Arm
-          ],
+          slots: [IES.Arm],
           children: {
-            [HumanoidCreatureBodyPart.RightHand]: {
-              slots: [
-                ItemDefinitions.ItemEquipSlot.Ring,
-                ItemDefinitions.ItemEquipSlot.Wieldable,
-                ItemDefinitions.ItemEquipSlot.Hand
-              ]
-            }
+            [HumanoidCreatureBodyPart.RightHand]: { slots: [IES.Ring, IES.Wieldable, IES.Hand] }
           }
         },
         [HumanoidCreatureBodyPart.LeftArm]: {
-          slots: [
-            ItemDefinitions.ItemEquipSlot.Arm
-          ],
+          slots: [IES.Arm],
           children: {
-            [HumanoidCreatureBodyPart.LeftHand]: {
-              slots: [
-                ItemDefinitions.ItemEquipSlot.Ring,
-                ItemDefinitions.ItemEquipSlot.Wieldable,
-                ItemDefinitions.ItemEquipSlot.Hand
-              ]
-            }
+            [HumanoidCreatureBodyPart.LeftHand]: { slots: [IES.Ring, IES.Wieldable, IES.Hand] }
           }
         },
         [HumanoidCreatureBodyPart.RightLeg]: {
-          slots: [
-            ItemDefinitions.ItemEquipSlot.Leg
-          ],
+          slots: [IES.Leg],
           children: {
-            [HumanoidCreatureBodyPart.RightFoot]: {
-              slots: [
-                ItemDefinitions.ItemEquipSlot.Foot
-              ]
-            }
+            [HumanoidCreatureBodyPart.RightFoot]: { slots: [IES.Foot] }
           }
         },
         [HumanoidCreatureBodyPart.LeftLeg]: {
-          slots: [
-            ItemDefinitions.ItemEquipSlot.Leg
-          ],
+          slots: [IES.Leg],
           children: {
-            [HumanoidCreatureBodyPart.LeftFoot]: {
-              slots: [
-                ItemDefinitions.ItemEquipSlot.Foot
-              ]
-            }
+            [HumanoidCreatureBodyPart.LeftFoot]: { slots: [IES.Foot] }
           }
         }
       }

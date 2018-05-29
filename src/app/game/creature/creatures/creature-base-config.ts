@@ -1,5 +1,7 @@
-import { CreatureDefinitions } from '../creature-definitions';
+import { CreatureAbilityRestriction } from '../creature-ability-restriction';
+import { CreatureBodyPartTree } from '../creature-body-part-tree';
 
+import { CreatureBaseAnimationConfig } from './creature-base-animation-config';
 import { CreatureBaseTextureConfig } from './creature-base-texture-config';
 
 export interface CreatureBaseConfig {
@@ -7,22 +9,11 @@ export interface CreatureBaseConfig {
   creatureType: string;
   properName: string;
   properNamePlural: string;
-  restrictions: {
-    abilities: {
-      ability: string;
-      score: number;
-      bound: string;
-    }[];
-    classes: string[];
-  };
+  restrictions: { abilities: CreatureAbilityRestriction[]; classes: string[]; };
   textureOrigin?: { x: number; y: number; };
-  textures: {
-    [key: string]: CreatureBaseTextureConfig;
-  };
-  animationConfigs?: {
-    [key: string]: { frameRate: number; frames: { key: string; }[]; repeat: number; }
-  };
+  textures: { [key: string]: CreatureBaseTextureConfig; };
+  animationConfigs?: { [key: string]: CreatureBaseAnimationConfig; };
   itemEquipSlotRenderOrder?: string[];
-  bodyPartTree?: any;
+  bodyPartTree?: CreatureBodyPartTree;
   abilityDice?: { [key: string]: string; };
 }
