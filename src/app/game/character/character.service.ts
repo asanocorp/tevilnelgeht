@@ -72,7 +72,7 @@ export class CharacterService {
       }
     });
 
-    // Refresh all renderable data based on currently equipped items.
+    // Refresh all renderable data based on current character state.
     this.refreshRenderableData(character, scene);
 
     return character;
@@ -116,7 +116,7 @@ export class CharacterService {
       const requirements = this.getItemEquipRequiredSlotsCount(item);
 
       const all = {};
-      character.itemEquipSlots.forEach(slot => all[slot] = all[slot] ? (all[slot] + 1) : 1);
+      character.itemEquipSlots.forEach(s => all[s.slot] = all[s.slot] ? (all[s.slot] + 1) : 1);
 
       const slots = Object.keys(requirements);
 
@@ -176,23 +176,67 @@ export class CharacterService {
    *
    * @param character Character.
    * @param item Item.
+   * @param itemEquipSlots Specific item equip slots to try an use. Note that the slots provided must match those required by the item, both
+   * in quantity & type.
    */
-  public equipItem(character: Character, item: ItemConfig): void {
+  public equipItem(character: Character, item: ItemConfig, itemEquipSlots?: any[]): void {
     if (item.equipSlots && this.hasItemEquipSlotsForItem(character, item)) {
-      const requirements = this.getItemEquipRequiredSlotsCount(item);
+      // Item is equippable & character has slots for it, filled or available.
 
-      // Unequip current item(s) filling target item equip slots.
-      Object.keys(requirements).forEach(
-        slot => character.itemEquipSlots
-          .filter(s => slot === s.slot)
-          .slice(0, requirements[slot])
-          .forEach(s => this.unEquipItem(character, s.item))
-      );
+      const requirements = this.getItemEquipRequiredSlotsCount(item);
+      let slots;
+
+      if (itemEquipSlots) {
+        // Item equip slots specified, try them first...
+        const provided = {};
+        itemEquipSlots.forEach(s => provided[s.slot] = provided[s.slot] ? (provided[s.slot]) : 1);
+
+        let validSlots = true;
+        Object.keys(requirements).forEach(slot => {
+          if (validSlots) {
+            validSlots = provided[slot] === requirements[slot];
+          }
+        });
+
+        if (validSlots) {
+          slots = itemEquipSlots;
+        }
+      }
+
+      if (!slots) {
+        // Default: Gather target item equip slots & unequip current item(s).
+        slots = [];
+        Object.keys(requirements).forEach(
+          slot => character.itemEquipSlots
+            // Get target slots.
+            .filter(s => slot === s.slot)
+            // Empty slots should come first.
+            .sort((a, b) => {
+              if (!a.item && !b.item || a.item && b.item) {
+                // Doesn't matter, keep slots in place.
+                return 0;
+              }
+
+              if (!a.item && b.item) {
+                // Slot A is empty, it should come first.
+                return -1;
+              }
+
+              // Slot B is empty, it should come first.
+              return 1;
+            })
+            // Get the required number of slots.
+            .slice(0, requirements[slot])
+            // Empty slot & gather.
+            .forEach(s => {
+              this.unEquipItem(character, s.item);
+              slots.push(s);
+            })
+        );
+      }
 
       // Equip new item.
-      Object.keys(requirements).forEach(slot => {
-        character.itemEquipSlots.filter(s => slot === s.slot).slice(0, requirements[slot]).forEach(s => s.item = item);
-      });
+      slots.forEach(s => s.item = item);
     }
   }
 
