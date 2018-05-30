@@ -5,13 +5,14 @@ import { ItemConfig } from '../../../item-config';
 import { ItemDefinitions } from '../../../item-definitions';
 
 export const data = [
-  '............000.',
-  '...........0***0',
-  '...........0***0',
-  '.....000...0***0',
-  '.00000*00..00000',
-  '0********0.0***0',
-  '0000000000..000.'
+  '00000..00000....',
+  '0***0..0***0....',
+  '0***0..0***0....',
+  '0**00..0**00....',
+  '0***0000***0000.',
+  '0**0*0**0*0*0**0',
+  '0*******0******0',
+  '0000000000000000'
 ];
 
 export const colorPaletteIndex = {
@@ -43,18 +44,14 @@ function processHumanoidTexture(creatureTexture: CreatureTextureConfig, itemConf
   const leftFoot = creatureTexture.bodyPart[creatureDefaults.BodyPart.LeftFoot];
   const rightFoot = creatureTexture.bodyPart[creatureDefaults.BodyPart.RightFoot];
 
-  const leftFootBottom = leftFoot[leftFoot.length - 1];
-  const rightFootBottom = rightFoot[rightFoot.length - 1];
-
   const colorIndex = itemConfig.texture.colorPaletteIndex[itemConfig.condition || ''];
 
-  let row = creatureTexture.data[leftFootBottom.bottom - 1];
-  creatureTexture.data[leftFootBottom.bottom - 1]
-    = row.substr(0, leftFootBottom.right - 1) + colorIndex + row.substr(leftFootBottom.right);
-
-  row = creatureTexture.data[rightFootBottom.bottom - 1];
-  creatureTexture.data[rightFootBottom.bottom - 1]
-    = row.substr(0, rightFootBottom.left) + colorIndex + row.substr(rightFootBottom.left + 1);
+  [].concat(leftFoot, rightFoot).forEach(rect => {
+    for (let y = rect.y, len = rect.bottom; y < len; ++y) {
+      const row = creatureTexture.data[y];
+      creatureTexture.data[y] = row.substr(0, rect.x) + colorIndex.repeat(rect.width) + row.substr(rect.right);
+    }
+  });
 
   return creatureTexture;
 }

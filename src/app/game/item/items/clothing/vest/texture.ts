@@ -5,21 +5,25 @@ import { ItemConfig } from '../../../item-config';
 import { ItemDefinitions } from '../../../item-definitions';
 
 export const data = [
-  '............000.',
-  '...........0***0',
-  '...........0***0',
-  '.....000...0***0',
-  '.00000*00..00000',
-  '0********0.0***0',
-  '0000000000..000.'
+  '.000000000.',
+  '00**000**00',
+  '0*********0',
+  '0*********0',
+  '0*********0',
+  '.0*******0.',
+  '.0*******0.',
+  '.0*******0.',
+  '.0*******0.',
+  '.0*******0.',
+  '..0000000..',
 ];
 
 export const colorPaletteIndex = {
-  '': '6',
-  [ItemDefinitions.ItemCondition.Exquisite]: 'E',
-  [ItemDefinitions.ItemCondition.Fine]: 'D',
-  [ItemDefinitions.ItemCondition.Ragged]: '1',
-  [ItemDefinitions.ItemCondition.Worn]: '5'
+  '': 'D', // 'A', // '6',
+  [ItemDefinitions.ItemCondition.Exquisite]: 'B', // 'F', // 'E',
+  [ItemDefinitions.ItemCondition.Fine]: '8', // '4', // 'D',
+  [ItemDefinitions.ItemCondition.Ragged]: '1', // '5', // '1',
+  [ItemDefinitions.ItemCondition.Worn]: '6' // '9' // '5'
 };
 
 export function processCreatureEquippedTextureConfig(
@@ -40,21 +44,16 @@ export function processCreatureEquippedTextureConfig(
 function processHumanoidTexture(creatureTexture: CreatureTextureConfig, itemConfig: ItemConfig): CreatureTextureConfig {
   const creatureDefaults = CreatureDefinitions.defaultValuesByCreatureType[CreatureDefinitions.CreatureType.Humanoid];
 
-  const leftFoot = creatureTexture.bodyPart[creatureDefaults.BodyPart.LeftFoot];
-  const rightFoot = creatureTexture.bodyPart[creatureDefaults.BodyPart.RightFoot];
-
-  const leftFootBottom = leftFoot[leftFoot.length - 1];
-  const rightFootBottom = rightFoot[rightFoot.length - 1];
+  const torso = creatureTexture.bodyPart[creatureDefaults.BodyPart.Torso];
 
   const colorIndex = itemConfig.texture.colorPaletteIndex[itemConfig.condition || ''];
 
-  let row = creatureTexture.data[leftFootBottom.bottom - 1];
-  creatureTexture.data[leftFootBottom.bottom - 1]
-    = row.substr(0, leftFootBottom.right - 1) + colorIndex + row.substr(leftFootBottom.right);
-
-  row = creatureTexture.data[rightFootBottom.bottom - 1];
-  creatureTexture.data[rightFootBottom.bottom - 1]
-    = row.substr(0, rightFootBottom.left) + colorIndex + row.substr(rightFootBottom.left + 1);
+  torso.forEach(rect => {
+    for (let y = rect.y, len = rect.bottom; y < len; ++y) {
+      const row = creatureTexture.data[y];
+      creatureTexture.data[y] = row.substr(0, rect.x) + colorIndex.repeat(rect.width) + row.substr(rect.right);
+    }
+  });
 
   return creatureTexture;
 }

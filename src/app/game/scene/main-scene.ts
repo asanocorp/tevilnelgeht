@@ -61,7 +61,12 @@ export class MainScene extends Phaser.Scene {
       creatureId,
       classId,
       classLevel,
-      [{ itemType: 'clothing', itemId: 'sandals' }],
+      [
+        { itemType: 'clothing', itemId: 'worn-sandals' },
+        { itemType: 'clothing', itemId: 'worn-shorts' },
+        { itemType: 'clothing', itemId: 'worn-vest' },
+        { itemType: 'clothing', itemId: 'worn-gloves' }
+      ],
       this
     );
 
@@ -72,7 +77,7 @@ export class MainScene extends Phaser.Scene {
     // Required so player sprite remains interactive when attached to a level.
     this.scene.bringToTop('Main');
 
-    const sandals = level.add.image(48 * 3 + 24, 48 * 3 + 24, 'sandals');
+    const sandals = level.add.image(48 * 3 + 24, 48 * 3 + 24, 'gloves');
     sandals.setOrigin(0.5, 1);
   }
 }

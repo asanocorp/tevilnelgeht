@@ -5,13 +5,11 @@ import { ItemConfig } from '../../../item-config';
 import { ItemDefinitions } from '../../../item-definitions';
 
 export const data = [
-  '............000.',
-  '...........0***0',
-  '...........0***0',
-  '.....000...0***0',
-  '.00000*00..00000',
-  '0********0.0***0',
-  '0000000000..000.'
+  '00000..00000....',
+  '0***0000***0000.',
+  '0**0*0**0*0*0**0',
+  '0*******0******0',
+  '0000000000000000'
 ];
 
 export const colorPaletteIndex = {
@@ -50,11 +48,11 @@ function processHumanoidTexture(creatureTexture: CreatureTextureConfig, itemConf
 
   let row = creatureTexture.data[leftFootBottom.bottom - 1];
   creatureTexture.data[leftFootBottom.bottom - 1]
-    = row.substr(0, leftFootBottom.right - 1) + colorIndex + row.substr(leftFootBottom.right);
+    = row.substr(0, leftFootBottom.left) + colorIndex.repeat(leftFootBottom.width) + row.substr(leftFootBottom.right);
 
   row = creatureTexture.data[rightFootBottom.bottom - 1];
   creatureTexture.data[rightFootBottom.bottom - 1]
-    = row.substr(0, rightFootBottom.left) + colorIndex + row.substr(rightFootBottom.left + 1);
+    = row.substr(0, rightFootBottom.left) + colorIndex.repeat(rightFootBottom.width) + row.substr(rightFootBottom.right);
 
   return creatureTexture;
 }

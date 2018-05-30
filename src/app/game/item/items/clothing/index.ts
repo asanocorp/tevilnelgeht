@@ -1,7 +1,16 @@
 import { ItemConfig } from '../../item-config';
 import { ItemDefinitions } from '../../item-definitions';
 
-const itemIds = [ItemDefinitions.ItemId.Sandals];
+const itemIds = [
+  ItemDefinitions.ItemId.Boots,
+  ItemDefinitions.ItemId.Pants,
+  ItemDefinitions.ItemId.Gloves,
+  ItemDefinitions.ItemId.Sandals,
+  ItemDefinitions.ItemId.Shirt,
+  ItemDefinitions.ItemId.Shoes,
+  ItemDefinitions.ItemId.Shorts,
+  ItemDefinitions.ItemId.Vest
+];
 
 const itemConditions = [
   '',

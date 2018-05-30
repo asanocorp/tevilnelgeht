@@ -269,7 +269,11 @@ export class CharacterService {
       // Process textures with equipped items.
       .map(texture => {
         // Create new texture object with copy of data.
-        texture = { ...texture, data: this.copyTextureData(texture.data) };
+        texture = {
+          ...texture,
+          data: this.copyTextureData(texture.data),
+          bodyPart: this.copyTextureBodyPartData(texture.bodyPart)
+        };
 
         // Process texture with each equipped item, accumulating result.
         equippedItems.forEach(
@@ -391,6 +395,12 @@ export class CharacterService {
    */
   private copyTextureData(data: string[]): string[] {
     return data.map(row => row.slice());
+  }
+
+  private copyTextureBodyPartData(bodyPart: { [key: string]: Phaser.Geom.Rectangle[]; }): { [key: string]: Phaser.Geom.Rectangle[]; } {
+    const parts = {};
+    Object.keys(bodyPart).forEach(key => parts[key] = bodyPart[key].map(rect => Phaser.Geom.Rectangle.Clone(rect)));
+    return parts;
   }
 
   /**

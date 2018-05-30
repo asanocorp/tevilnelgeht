@@ -1,3 +1,10 @@
 export enum ItemId {
-  Sandals = 'sandals'
+  Boots = 'boots',
+  Gloves = 'gloves',
+  Pants = 'pants',
+  Sandals = 'sandals',
+  Shirt = 'shirt',
+  Shoes = 'shoes',
+  Shorts = 'shorts',
+  Vest = 'vest'
 }
